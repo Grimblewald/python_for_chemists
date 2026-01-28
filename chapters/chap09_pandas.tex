@@ -401,6 +401,181 @@ with pd.ExcelWriter("report.xlsx") as writer:
 \end{lstlisting}
 
 % ----------------------------------------------------------------------------
+\section{Working with Dates and Times}
+\label{sec:datetime}
+
+Scientific data is often timestamped: instrument readings, reaction monitoring, environmental measurements. Python and Pandas provide powerful tools for handling temporal data.
+
+\subsection{Python's datetime Module}
+
+The standard library \py{datetime} module handles dates and times:
+
+\begin{lstlisting}
+from datetime import datetime, date, time, timedelta
+
+# Current date and time
+now = datetime.now()
+print(now)  # 2024-03-15 14:30:45.123456
+
+# Create specific dates/times
+experiment_date = date(2024, 3, 15)
+start_time = time(9, 30, 0)  # 9:30:00 AM
+measurement = datetime(2024, 3, 15, 14, 30, 45)
+
+# Access components
+print(measurement.year)    # 2024
+print(measurement.month)   # 3
+print(measurement.hour)    # 14
+print(measurement.weekday())  # 4 (Friday, where Monday=0)
+\end{lstlisting}
+
+\subsubsection{Formatting and Parsing}
+
+Convert between datetime objects and strings using format codes:
+
+\begin{lstlisting}
+from datetime import datetime
+
+# Format datetime as string
+dt = datetime(2024, 3, 15, 14, 30)
+formatted = dt.strftime("%Y-%m-%d %H:%M")
+print(formatted)  # "2024-03-15 14:30"
+
+# Parse string to datetime
+text = "15/03/2024 09:45"
+parsed = datetime.strptime(text, "%d/%m/%Y %H:%M")
+print(parsed)  # 2024-03-15 09:45:00
+\end{lstlisting}
+
+Common format codes: \py{\%Y} (4-digit year), \py{\%m} (month), \py{\%d} (day), \py{\%H} (24-hour), \py{\%M} (minute), \py{\%S} (second).
+
+\subsubsection{Time Differences}
+
+Use \py{timedelta} for durations and arithmetic:
+
+\begin{lstlisting}
+from datetime import datetime, timedelta
+
+start = datetime(2024, 3, 15, 9, 0)
+end = datetime(2024, 3, 15, 17, 30)
+
+duration = end - start
+print(duration)              # 8:30:00
+print(duration.total_seconds())  # 30600.0
+
+# Add time to a datetime
+next_reading = start + timedelta(hours=2, minutes=30)
+print(next_reading)  # 2024-03-15 11:30:00
+\end{lstlisting}
+
+\subsection{DateTime in Pandas}
+
+Pandas extends datetime handling for working with columns of timestamps.
+
+\subsubsection{Converting to DateTime}
+
+Use \py{pd.to\_datetime()} to parse date columns:
+
+\begin{lstlisting}
+import pandas as pd
+
+# From various string formats
+df = pd.DataFrame({
+    "date_str": ["2024-03-15", "2024-03-16", "2024-03-17"],
+    "value": [1.2, 1.5, 1.3]
+})
+df["date"] = pd.to_datetime(df["date_str"])
+
+# Pandas often infers format automatically
+dates = pd.to_datetime(["March 15, 2024", "March 16, 2024"])
+
+# Specify format for speed or unusual formats
+df["date"] = pd.to_datetime(df["date_str"], format="%Y-%m-%d")
+\end{lstlisting}
+
+\subsubsection{The .dt Accessor}
+
+Access datetime components using \py{.dt}:
+
+\begin{lstlisting}
+df["date"] = pd.to_datetime(df["date_str"])
+
+df["year"] = df["date"].dt.year
+df["month"] = df["date"].dt.month
+df["day_of_week"] = df["date"].dt.dayofweek  # Monday=0
+df["hour"] = df["date"].dt.hour
+
+# Useful for filtering
+morning_data = df[df["date"].dt.hour < 12]
+march_data = df[df["date"].dt.month == 3]
+\end{lstlisting}
+
+\subsubsection{DateTime as Index}
+
+Setting timestamps as the index enables powerful time series operations:
+
+\begin{lstlisting}
+# Create time series data
+data = pd.DataFrame({
+    "timestamp": pd.date_range("2024-03-15", periods=24, freq="h"),
+    "temperature": [20.1, 20.3, 20.0, 19.8, 19.5, 19.2,
+                   19.0, 19.5, 21.0, 23.5, 25.2, 26.8,
+                   27.5, 28.0, 27.8, 27.0, 25.5, 24.0,
+                   22.5, 21.5, 21.0, 20.5, 20.2, 20.0]
+})
+data = data.set_index("timestamp")
+
+# Select by date/time
+march_15_afternoon = data.loc["2024-03-15 12:00":"2024-03-15 18:00"]
+
+# Resample: convert hourly to 6-hour averages
+six_hourly = data.resample("6h").mean()
+print(six_hourly)
+\end{lstlisting}
+
+\subsubsection{Resampling Time Series}
+
+Resampling converts data between time frequencies:
+
+\begin{lstlisting}
+# Common frequency codes:
+# "D" = daily, "h" = hourly, "min" = minute
+# "W" = weekly, "ME" = month end, "YE" = year end
+
+# Downsample: reduce frequency (aggregate)
+daily_mean = hourly_data.resample("D").mean()
+daily_max = hourly_data.resample("D").max()
+
+# Multiple aggregations
+daily_stats = hourly_data.resample("D").agg(["mean", "min", "max"])
+\end{lstlisting}
+
+\begin{labexample}
+Analyzing timestamped instrument readings:
+
+\begin{lstlisting}
+import pandas as pd
+
+# Load data with timestamps
+data = pd.read_csv("instrument_log.csv")
+data["timestamp"] = pd.to_datetime(data["timestamp"])
+data = data.set_index("timestamp")
+
+# Find readings from specific time window
+morning = data.between_time("08:00", "12:00")
+
+# Calculate hourly statistics
+hourly = data["reading"].resample("h").agg(["mean", "std", "count"])
+print(hourly.head())
+
+# Find days with high variance (potential issues)
+daily_std = data["reading"].resample("D").std()
+problem_days = daily_std[daily_std > daily_std.mean() + 2*daily_std.std()]
+print(f"High-variance days: {len(problem_days)}")
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
 \section{A Complete Analysis Example}
 \label{sec:pandas-example}
 
