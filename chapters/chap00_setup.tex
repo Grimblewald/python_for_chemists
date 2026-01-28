@@ -425,8 +425,12 @@ Create a file called \filepath{hello.py} with this content:
 print("Hello from a script!")
 print("This is more than one line.")
 result = 6 * 7
-print(f"Six times seven is {result}")
+print("Six times seven is", result)
 \end{lstlisting}
+
+\begin{note}
+In the last line, we pass two items to \py{print()}, separated by a comma. Python automatically puts a space between them. This is a simple way to combine text with variable values. In Chapter~\ref{chap:basics}, you'll learn about \emph{f-strings}, a more powerful approach for formatting output.
+\end{note}
 
 Run it from the terminal:
 
