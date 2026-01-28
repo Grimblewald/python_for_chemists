@@ -20,7 +20,6 @@ You need a LaTeX distribution with the following packages:
 
 **Simple build (run twice for table of contents):**
 ```bash
-cd /home/claude/TeachingAid/python_for_scientists
 pdflatex main.tex
 pdflatex main.tex
 ```
