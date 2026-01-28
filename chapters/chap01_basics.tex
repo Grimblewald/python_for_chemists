@@ -151,6 +151,13 @@ Both calculate the same result, but the second version explains itself. Anyone r
 Avoid single-letter variable names except in very short code blocks or when they match mathematical notation you're implementing. The characters you save aren't worth the confusion.
 \end{warning}
 
+\begin{warning}
+\textbf{Avoid "Magic Numbers"}
+In the example above, if we had written \py{conc = 5.85 / 58.44 / 0.5}, those numbers are called "Magic Numbers"---unexplained constants that appear out of nowhere.
+
+To a programmer, a number without a name is dangerous. Is \py{0.5} the volume? The concentration? A correction factor? By assigning \py{volume_L = 0.5}, you give that number semantic meaning. You aren't just doing arithmetic; you are defining the physics of your simulation.
+\end{warning}
+
 % ----------------------------------------------------------------------------
 \section{Data Types}
 \label{sec:types}
@@ -312,6 +319,21 @@ ValueError: invalid literal for int() with base 10: 'hello'
 Python cannot guess that "hello" is not a number. Similarly, \py{float("1.5 kg")} will fail because of the unit "kg". The string must contain \emph{only} numbers.
 \end{warning}
 
+
+\begin{tip}
+\textbf{The Helping Hand}
+When Python crashes and a wall of red text appears, do not panic. Your instinct might be to flinch, interpreting the error as a strike against your competence.
+
+I urge you to view it differently: see it not as a hand raised to strike, but as a hand reaching out to pull you up. Great programmers don't write code that never breaks—to err is human. Instead, they are simply willing to take the hand that is offered. The traceback is a specific guide on how to resolve the misunderstanding between your intent and the computer's strict logic.
+\end{tip}
+
+\begin{ponder}
+\textbf{The Sound of Silence}
+Consider the alternative. Imagine if there were no error messages. Imagine if you made a typo, or divided by zero, and the computer simply guessed what you meant or returned a random result without complaint.
+
+You would be forced to manually verify every single intermediate calculation with a calculator before you could hope to trust the final output. That would be a true nightmare. The loud, abrasive error message is the only reason we can trust the silence of a successful run.
+\end{ponder}
+
 % ----------------------------------------------------------------------------
 \section{Operators and Expressions}
 \label{sec:operators}
@@ -433,6 +455,13 @@ x = x + 1
 x = x + 1
 \end{lstlisting}
 \end{tip}
+
+\begin{ponder}
+\textbf{Coding is Time Travel}
+The primary audience for your code is not the computer; the computer will execute garbage instructions without complaint. The primary audience is \emph{humans}---specifically, you, six months from now.
+
+"Future You" will be tired, busy, and will have completely forgotten why you divided by 5.85. Writing clean code and helpful comments is an act of kindness to your future self. Start thinking about how to effectively communicate with the future. It's an acquired skill like many others, but it is a very valuable one.
+\end{ponder}
 
 % ----------------------------------------------------------------------------
 \section{Formatted Output with f-strings}
