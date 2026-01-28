@@ -1,0 +1,471 @@
+% chap04_functions.tex - Defining and using functions
+% ============================================================================
+
+\chapter{Functions}
+\label{chap:functions}
+
+You've been using functions like \py{print()}, \py{len()}, and \py{type()} throughout this book. Now it's time to write your own. Functions let you package code into reusable pieces, making your programs shorter, clearer, and easier to maintain.
+
+% ----------------------------------------------------------------------------
+\section{Why Functions?}
+\label{sec:why-functions}
+
+Imagine you need to calculate molarity in multiple places in your code:
+
+\begin{lstlisting}
+# First calculation
+mass1 = 5.85
+molar_mass1 = 58.44
+volume1 = 0.5
+molarity1 = mass1 / molar_mass1 / volume1
+
+# Second calculation
+mass2 = 11.7
+molar_mass2 = 58.44
+volume2 = 1.0
+molarity2 = mass2 / molar_mass2 / volume2
+
+# Third calculation...
+\end{lstlisting}
+
+This is repetitive. If you later realize you made an error in the formula, you'd need to fix it in every location. Functions solve this by letting you define the calculation once and use it many times.
+
+% ----------------------------------------------------------------------------
+\section{Defining Functions}
+\label{sec:defining-functions}
+
+Create a function with the \py{def} keyword:
+
+\begin{lstlisting}
+def greet():
+    print("Hello, scientist!")
+\end{lstlisting}
+
+The structure is:
+\begin{itemize}
+    \item \py{def} keyword
+    \item Function name (follows same rules as variable names)
+    \item Parentheses (may contain parameters)
+    \item Colon
+    \item Indented block of code (the function body)
+\end{itemize}
+
+To use (``call'') the function:
+
+\begin{lstlisting}
+greet()  # prints "Hello, scientist!"
+greet()  # prints it again
+\end{lstlisting}
+
+\subsection{Parameters and Arguments}
+
+Functions become powerful when they accept inputs called \emph{parameters}:
+
+\begin{lstlisting}
+def greet(name):
+    print(f"Hello, {name}!")
+
+greet("Alice")   # prints "Hello, Alice!"
+greet("Bob")     # prints "Hello, Bob!"
+\end{lstlisting}
+
+In the definition, \py{name} is a \emph{parameter}---a placeholder. When you call the function, you provide an \emph{argument}---the actual value. (Many people use these terms interchangeably, but technically parameters are in definitions, arguments are in calls.)
+
+Multiple parameters are separated by commas:
+
+\begin{lstlisting}
+def calculate_molarity(mass, molar_mass, volume):
+    molarity = mass / molar_mass / volume
+    print(f"Molarity: {molarity:.4f} M")
+
+calculate_molarity(5.85, 58.44, 0.5)
+calculate_molarity(11.7, 58.44, 1.0)
+\end{lstlisting}
+
+\subsection{Return Values}
+
+Printing is nice, but usually you want to get a value back from a function. Use \py{return}:
+
+\begin{lstlisting}
+def calculate_molarity(mass, molar_mass, volume):
+    molarity = mass / molar_mass / volume
+    return molarity
+
+# Now you can use the result
+conc = calculate_molarity(5.85, 58.44, 0.5)
+print(f"Concentration: {conc:.4f} M")
+
+# Or use it directly in expressions
+if calculate_molarity(11.7, 58.44, 1.0) > 0.1:
+    print("Concentration is above threshold")
+\end{lstlisting}
+
+\begin{note}
+A function without a \py{return} statement returns \py{None}. If you try to use the result, you'll get \py{None}---a common source of confusion for beginners.
+\end{note}
+
+\subsection{Multiple Return Values}
+
+Python functions can return multiple values using tuples:
+
+\begin{lstlisting}
+def analyze_data(values):
+    minimum = min(values)
+    maximum = max(values)
+    average = sum(values) / len(values)
+    return minimum, maximum, average
+
+data = [1.2, 3.4, 2.1, 5.6, 4.3]
+low, high, avg = analyze_data(data)
+print(f"Range: {low} to {high}, Average: {avg:.2f}")
+\end{lstlisting}
+
+\begin{labexample}
+A function to calculate reaction quotient Q:
+
+\begin{lstlisting}
+def reaction_quotient(products, reactants):
+    """
+    Calculate Q for a reaction.
+    products: list of [concentration, coefficient] pairs
+    reactants: list of [concentration, coefficient] pairs
+    """
+    Q_num = 1.0
+    for conc, coeff in products:
+        Q_num *= conc ** coeff
+
+    Q_den = 1.0
+    for conc, coeff in reactants:
+        Q_den *= conc ** coeff
+
+    return Q_num / Q_den
+
+# For: 2NO2 <-> N2O4
+# [N2O4] = 0.5 M, [NO2] = 0.1 M
+Q = reaction_quotient(
+    products=[[0.5, 1]],      # N2O4 with coefficient 1
+    reactants=[[0.1, 2]]      # NO2 with coefficient 2
+)
+print(f"Q = {Q}")
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Default Parameters}
+\label{sec:default-params}
+
+You can give parameters default values:
+
+\begin{lstlisting}
+def calculate_molarity(mass, molar_mass, volume=1.0):
+    return mass / molar_mass / volume
+
+# volume defaults to 1.0 if not specified
+conc1 = calculate_molarity(5.85, 58.44)        # volume = 1.0
+conc2 = calculate_molarity(5.85, 58.44, 0.5)   # volume = 0.5
+\end{lstlisting}
+
+\begin{warning}
+Parameters with defaults must come after parameters without defaults:
+\begin{lstlisting}
+def func(a, b=1, c):    # ERROR! c has no default but comes after b
+    pass
+
+def func(a, c, b=1):    # OK - default parameter is last
+    pass
+\end{lstlisting}
+\end{warning}
+
+% ----------------------------------------------------------------------------
+\section{Keyword Arguments}
+\label{sec:keyword-args}
+
+When calling functions, you can specify arguments by name:
+
+\begin{lstlisting}
+def describe_element(name, symbol, atomic_number):
+    print(f"{name} ({symbol}): Z = {atomic_number}")
+
+# Positional arguments (order matters)
+describe_element("Carbon", "C", 6)
+
+# Keyword arguments (order doesn't matter)
+describe_element(atomic_number=6, name="Carbon", symbol="C")
+
+# Mixed (positional first, then keyword)
+describe_element("Carbon", atomic_number=6, symbol="C")
+\end{lstlisting}
+
+Keyword arguments make function calls more readable, especially with many parameters:
+
+\begin{lstlisting}
+# What do these numbers mean?
+result = analyze_spectrum(data, 400, 700, 0.1, True, False)
+
+# Much clearer:
+result = analyze_spectrum(
+    data,
+    wavelength_min=400,
+    wavelength_max=700,
+    resolution=0.1,
+    normalize=True,
+    subtract_baseline=False
+)
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Docstrings}
+\label{sec:docstrings}
+
+A \emph{docstring} is a string at the beginning of a function that documents what it does:
+
+\begin{lstlisting}
+def calculate_molarity(mass, molar_mass, volume):
+    """
+    Calculate the molarity of a solution.
+
+    Parameters:
+        mass: Mass of solute in grams
+        molar_mass: Molar mass of solute in g/mol
+        volume: Volume of solution in liters
+
+    Returns:
+        Molarity in mol/L
+    """
+    return mass / molar_mass / volume
+\end{lstlisting}
+
+Docstrings help others (and future you) understand your code. Python's \py{help()} function displays them:
+
+\begin{lstlisting}
+>>> help(calculate_molarity)
+\end{lstlisting}
+
+\begin{tip}
+Write docstrings for any function that isn't immediately obvious. It takes a minute now and saves hours of confusion later.
+\end{tip}
+
+% ----------------------------------------------------------------------------
+\section{Scope: Where Variables Live}
+\label{sec:scope}
+
+Variables created inside a function exist only inside that function. This is called \emph{scope}:
+
+\begin{lstlisting}
+def my_function():
+    x = 10  # x exists only inside this function
+    print(x)
+
+my_function()  # prints 10
+print(x)       # ERROR! x is not defined here
+\end{lstlisting}
+
+Variables defined outside functions are ``global'' and can be read from anywhere:
+
+\begin{lstlisting}
+multiplier = 2  # global variable
+
+def double(x):
+	global multiplier # we do still need tell our function it should use the multiplyer variable from global when we mention multiplyer
+    return x * multiplier  # can read global variable
+
+print(double(5))  # prints 10
+\end{lstlisting}
+
+\begin{warning}
+Modifying global variables from inside functions requires the \py{global} keyword and is generally discouraged. It makes code harder to understand and debug. Instead, pass values as parameters and return results.
+\begin{lstlisting}
+# Bad - modifies global state
+counter = 0
+def increment():
+    global counter
+    counter += 1
+
+# Better - explicit input and output
+def increment(counter):
+    return counter + 1
+
+counter = increment(counter)
+\end{lstlisting}
+\end{warning}
+
+% ----------------------------------------------------------------------------
+\section{Functions as Values}
+\label{sec:functions-as-values}
+
+In Python, functions are values---you can store them in variables, put them in lists, and pass them to other functions:
+
+\begin{lstlisting}
+def square(x):
+    return x ** 2
+
+def cube(x):
+    return x ** 3
+
+# Store function in a variable
+operation = square
+print(operation(4))  # prints 16
+
+operation = cube
+print(operation(4))  # prints 64
+
+# Put functions in a list
+operations = [square, cube]
+for op in operations:
+    print(op(3))  # prints 9, then 27
+\end{lstlisting}
+
+This is useful for applying different operations to data:
+
+\begin{lstlisting}
+def apply_to_all(data, function):
+    """Apply a function to every element in a list."""
+    return [function(x) for x in data]
+
+numbers = [1, 2, 3, 4, 5]
+squared = apply_to_all(numbers, square)  # [1, 4, 9, 16, 25]
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Lambda Functions}
+\label{sec:lambda}
+
+For simple, one-line functions, Python offers \py{lambda}---a way to create small anonymous (unnamed) functions:
+
+\begin{lstlisting}
+# Regular function
+def square(x):
+    return x ** 2
+
+# Equivalent lambda
+square = lambda x: x ** 2
+\end{lstlisting}
+
+Lambdas are useful when you need a quick function for a single use:
+
+\begin{lstlisting}
+numbers = [1, 2, 3, 4, 5]
+
+# Using lambda with map
+squared = list(map(lambda x: x ** 2, numbers))
+
+# Using lambda for sorting
+elements = [("C", 6), ("H", 1), ("O", 8), ("N", 7)]
+sorted_by_number = sorted(elements, key=lambda x: x[1])
+# [('H', 1), ('C', 6), ('N', 7), ('O', 8)]
+\end{lstlisting}
+
+\begin{tip}
+If a lambda is complex enough that it's hard to read, use a regular function instead. Lambdas are for simple operations only.
+\end{tip}
+
+% ----------------------------------------------------------------------------
+\section{Built-in Functions Worth Knowing}
+\label{sec:builtin-functions}
+
+Python includes many useful built-in functions. Here are some important ones:
+
+\begin{lstlisting}
+# Math operations on sequences
+numbers = [3, 1, 4, 1, 5, 9, 2, 6]
+sum(numbers)      # 31
+min(numbers)      # 1
+max(numbers)      # 9
+len(numbers)      # 8
+
+# Rounding
+round(3.14159, 2)  # 3.14
+abs(-5)            # 5
+
+# Type conversions
+int("42")          # 42
+float("3.14")      # 3.14
+str(42)            # "42"
+list("abc")        # ['a', 'b', 'c']
+
+# Checking types
+isinstance(42, int)         # True
+isinstance("hi", (int, str))  # True (either type)
+
+# Working with sequences
+sorted([3, 1, 4])           # [1, 3, 4]
+reversed([1, 2, 3])         # an iterator which returns: 3, 2, 1
+list(zip([1,2], ['a','b'])) # [(1,'a'), (2,'b')]
+list(enumerate(['a','b']))  # [(0,'a'), (1,'b')]
+
+# All/any
+all([True, True, False])    # False (not all True)
+any([True, False, False])   # True (at least one True)
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{A Complete Example}
+\label{sec:function-example}
+
+Let's build a set of functions for basic spectroscopy calculations:
+
+\begin{lstlisting}
+
+import math # load the math library, this gives us access to logarithms by name.
+
+def absorbance_to_transmittance(A):
+    """Convert absorbance to percent transmittance."""
+    return 100 * (10 ** (-A))
+
+def transmittance_to_absorbance(T):
+    """Convert percent transmittance to absorbance. This function assumes transmittence is supplied as a percentage."""
+    return 2-math.log10(T)
+
+def beers_law_concentration(A, epsilon, path_length=1.0):
+    """
+    Calculate concentration using Beer's Law: A = epsilon * c * l
+
+    Parameters:
+        A: Absorbance (unitless)
+        epsilon: Molar absorptivity (L/(mol*cm))
+        path_length: Path length in cm (default 1.0)
+
+    Returns:
+        Concentration in mol/L
+    """
+    return A / (epsilon * path_length)
+
+def beers_law_absorbance(concentration, epsilon, path_length=1.0):
+    """Calculate expected absorbance using Beer's Law."""
+    return epsilon * concentration * path_length
+
+# Using the functions
+A_measured = 0.523
+epsilon_450nm = 18500  # L/(mol*cm) for beta-carotene at 450 nm
+
+conc = beers_law_concentration(A_measured, epsilon_450nm)
+print(f"Concentration: {conc:.2e} M")
+
+T = absorbance_to_transmittance(A_measured)
+print(f"Transmittance: {T:.1f}%")
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Chapter Summary}
+\label{sec:functions-summary}
+
+Functions are fundamental to good programming:
+
+\begin{itemize}
+    \item \textbf{Define:} \py{def function_name(parameters):}
+    \item \textbf{Return values:} \py{return result}
+    \item \textbf{Default parameters:} \py{def func(a, b=1):}
+    \item \textbf{Keyword arguments:} \py{func(a=1, b=2)}
+    \item \textbf{Docstrings:} Document what functions do
+    \item \textbf{Scope:} Variables inside functions are local
+    \item \textbf{Lambda:} \py{lambda x: x ** 2} for simple functions
+\end{itemize}
+
+\begin{ponder}
+\begin{enumerate}
+    \item What's the difference between \py{print()} and \py{return}?
+    \item Why should you avoid modifying global variables in functions?
+    \item When would you use a lambda instead of a regular function?
+    \item Write a function that takes a list of numbers and returns both the mean and standard deviation.
+\end{enumerate}
+\end{ponder}

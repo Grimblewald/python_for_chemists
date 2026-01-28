@@ -1,0 +1,494 @@
+% chap08_numpy.tex - Numerical computing with NumPy
+% ============================================================================
+
+\chapter{NumPy: Numerical Computing}
+\label{chap:numpy}
+
+Python lists are flexible but slow for numerical work. NumPy (Numerical Python) provides arrays---efficient containers for numerical data---and fast operations on them. NumPy is the foundation of scientific Python; virtually every scientific library builds on it. You can install it from your terminal, preferably with a virtual environment active, via:
+
+\begin{lstlisting}
+pip install numpy
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Why NumPy?}
+\label{sec:why-numpy}
+
+Compare adding two lists of numbers:
+
+\begin{lstlisting}
+# Pure Python - slow
+a = [1, 2, 3, 4, 5]
+b = [10, 20, 30, 40, 50]
+result = [x + y for x, y in zip(a, b)]
+
+# NumPy - fast
+import numpy as np
+a = np.array([1, 2, 3, 4, 5])
+b = np.array([10, 20, 30, 40, 50])
+result = a + b  # array([11, 22, 33, 44, 55])
+\end{lstlisting}
+
+NumPy is faster because:
+\begin{itemize}
+    \item Arrays store data in contiguous memory
+    \item Operations are implemented in optimized C code
+    \item Operations work on entire arrays at once (``vectorization'')
+\end{itemize}
+
+For large datasets, NumPy can be 100x faster than pure Python.
+
+% ----------------------------------------------------------------------------
+\section{Creating Arrays}
+\label{sec:creating-arrays}
+
+Import NumPy with the conventional alias:
+
+\begin{lstlisting}
+import numpy as np
+\end{lstlisting}
+
+\subsection{From Lists}
+
+\begin{lstlisting}
+# 1D array
+a = np.array([1, 2, 3, 4, 5])
+
+# 2D array (matrix)
+b = np.array([[1, 2, 3],
+              [4, 5, 6]])
+
+# Note: all elements must be the same type
+c = np.array([1, 2, 3.0])  # all become floats
+print(c.dtype)  # float64
+\end{lstlisting}
+
+\subsection{With Functions}
+
+\begin{lstlisting}
+# Zeros and ones
+np.zeros(5)           # array([0., 0., 0., 0., 0.])
+np.ones((2, 3))       # 2x3 array of ones
+np.full((2, 2), 7)    # 2x2 array filled with 7
+
+# Ranges
+np.arange(0, 10, 2)   # array([0, 2, 4, 6, 8])
+np.linspace(0, 1, 5)  # array([0., 0.25, 0.5, 0.75, 1.])
+
+# Identity matrix
+np.eye(3)             # 3x3 identity matrix
+
+# Random numbers
+np.random.rand(3)           # 3 uniform random numbers [0, 1)
+np.random.randn(3)          # 3 standard normal random numbers
+np.random.randint(0, 10, 5) # 5 random integers from 0-9
+\end{lstlisting}
+
+\begin{tip}
+\py{np.linspace(start, stop, num)} creates exactly \py{num} evenly spaced points including both endpoints. \py{np.arange(start, stop, step_size)} creates values from \py{start} to \py{end-step_size}, with values differenting by \py{step_size}. Which is better really depends on usecase and needs.
+\end{tip}
+
+% ----------------------------------------------------------------------------
+\section{Array Properties}
+\label{sec:array-properties}
+
+\begin{lstlisting}
+a = np.array([[1, 2, 3],
+              [4, 5, 6]])
+
+a.shape      # (2, 3) - 2 rows, 3 columns
+a.ndim       # 2 - number of dimensions
+a.size       # 6 - total number of elements
+a.dtype      # dtype('int64') - data type
+\end{lstlisting}
+
+Common data types:
+\begin{itemize}
+    \item \py{int32}, \py{int64}: Integers
+    \item \py{float32}, \py{float64}: Floating point (64 is default)
+    \item \py{bool}: Boolean
+    \item \py{complex128}: Complex numbers
+\end{itemize}
+
+Specify type when creating:
+\begin{lstlisting}
+a = np.array([1, 2, 3], dtype=np.float32)
+\end{lstlisting}
+
+\begin{tip}
+The numbers (32, 64) indicate how many \textbf{bits} (1s and 0s) are used to store each value. A \texttt{float64} uses twice the memory of a \texttt{float32}, allowing for much higher precision and larger ranges. For example, an \textbf{int8} can only hold numbers from -128 to 127. If you try to store 500, it simply won't fit! Meanwhile, int16 can store -32,768 to 32,767. While 64-bit floats are generally a safe default, the curious can find the technical details of how these are stored by searching for \href{https://en.wikipedia.org/wiki/Floating-point_arithmetic}{``Floating-point arithmetic.''}, or following that link to the wikipedia page on the topic.
+\end{tip}
+
+% ----------------------------------------------------------------------------
+\section{Indexing and Slicing}
+\label{sec:numpy-indexing}
+
+NumPy indexing extends Python's list indexing:
+
+\subsection{1D Arrays}
+
+\begin{lstlisting}
+a = np.array([10, 20, 30, 40, 50])
+
+a[0]        # 10 (first element)
+a[-1]       # 50 (last element)
+a[1:4]      # array([20, 30, 40])
+a[::2]      # array([10, 30, 50]) - every other
+\end{lstlisting}
+
+\subsection{2D Arrays}
+
+\begin{lstlisting}
+b = np.array([[1, 2, 3],
+              [4, 5, 6],
+              [7, 8, 9]])
+
+b[0, 0]      # 1 (row 0, col 0)
+b[1, 2]      # 6 (row 1, col 2)
+b[0]         # array([1, 2, 3]) - first row
+b[:, 0]      # array([1, 4, 7]) - first column
+b[0:2, 1:3]  # 2x2 subarray: [[2, 3], [5, 6]]
+\end{lstlisting}
+
+\subsection{Boolean Indexing}
+
+Select elements that meet a condition:
+
+\begin{lstlisting}
+a = np.array([1, 5, 3, 8, 2, 9])
+
+a[a > 4]           # array([5, 8, 9])
+a[a % 2 == 0]      # array([8, 2]) - even numbers
+
+# Modify based on condition
+a[a > 5] = 0       # set values > 5 to 0
+print(a)           # array([1, 5, 3, 0, 2, 0])
+\end{lstlisting}
+
+\begin{labexample}
+Filtering spectroscopy data:
+
+\begin{lstlisting}
+wavelengths = np.linspace(400, 700, 100)
+absorbances = np.random.rand(100) * 0.5
+
+# Find wavelengths where absorbance > 0.3
+mask = absorbances > 0.3
+high_abs_wavelengths = wavelengths[mask]
+print(f"High absorbance at {len(high_abs_wavelengths)} wavelengths")
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Array Operations}
+\label{sec:array-operations}
+
+\subsection{Element-wise Operations}
+
+Operations apply to every element:
+
+\begin{lstlisting}
+a = np.array([1, 2, 3, 4])
+b = np.array([10, 20, 30, 40])
+
+a + b       # array([11, 22, 33, 44])
+a - b       # array([-9, -18, -27, -36])
+a * b       # array([10, 40, 90, 160])
+a / b       # array([0.1, 0.1, 0.1, 0.1])
+a ** 2      # array([1, 4, 9, 16])
+np.sqrt(a)  # array([1., 1.41..., 1.73..., 2.])
+\end{lstlisting}
+
+\subsection{Mathematical Functions}
+
+Vectorized functions are orders of magnitude faster for large volumes of high dimensional data than functions applied in loops would be. Scripts that can take hours using loops might taken seconds with vectorized functions. NumPy provides vectorized versions of many common math functions, examples include: 
+
+\begin{lstlisting}
+x = np.array([0, np.pi/4, np.pi/2, np.pi])
+
+np.sin(x)      # sine
+np.cos(x)      # cosine
+np.exp(x)      # e^x
+np.log(x)      # natural log (watch out for log(0)!)
+np.log10(x)    # base-10 log
+np.abs(x)      # absolute value
+\end{lstlisting}
+
+\begin{tip}
+It is a good idea to search up "numpy documentation" to have a look at what other functions and operations are avalaible through numpy. In your programming journey, getting comfortable with finding and making use of documentation is among the most important skills you will have. It is well beyond the scope of this book to give an exhaustive insight into all NumPy has to offer.
+\end{tip}
+
+\subsection{Aggregation Functions}
+
+Summarize array data:
+
+\begin{lstlisting}
+a = np.array([1, 5, 3, 8, 2])
+
+np.sum(a)      # 19
+np.mean(a)     # 3.8
+np.std(a)      # standard deviation
+np.var(a)      # variance
+np.min(a)      # 1
+np.max(a)      # 8
+np.argmin(a)   # 0 (index of minimum)
+np.argmax(a)   # 3 (index of maximum)
+\end{lstlisting}
+
+For 2D arrays, specify axis:
+
+\begin{lstlisting}
+b = np.array([[1, 2, 3],
+              [4, 5, 6]])
+
+np.sum(b)           # 21 (all elements)
+np.sum(b, axis=0)   # array([5, 7, 9]) - sum each column
+np.sum(b, axis=1)   # array([6, 15]) - sum each row
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Broadcasting}
+\label{sec:broadcasting}
+
+NumPy can operate on arrays of different shapes through \emph{broadcasting}:
+
+\begin{lstlisting}
+a = np.array([1, 2, 3])
+b = 10
+
+a + b    # array([11, 12, 13]) - scalar broadcast to all elements
+a * b    # array([10, 20, 30])
+\end{lstlisting}
+
+More complex broadcasting:
+
+\begin{lstlisting}
+# 2D array + 1D array
+matrix = np.array([[1, 2, 3],
+                   [4, 5, 6]])
+row = np.array([10, 20, 30])
+
+matrix + row
+# array([[11, 22, 33],
+#        [14, 25, 36]])
+\end{lstlisting}
+
+The 1D array is ``broadcast'' across each row of the 2D array.
+
+\begin{labexample}
+Baseline subtraction:
+
+\begin{lstlisting}
+# Spectrum with baseline
+wavelengths = np.linspace(400, 700, 100)
+raw_spectrum = np.random.rand(100) + 0.2  # signal + offset
+
+# Subtract baseline (minimum value)
+baseline = np.min(raw_spectrum)
+corrected = raw_spectrum - baseline  # broadcasts scalar
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Reshaping Arrays}
+\label{sec:reshaping}
+
+\begin{lstlisting}
+a = np.arange(12)  # array([0, 1, 2, ..., 11])
+
+# Reshape to 3x4
+b = a.reshape(3, 4)
+# array([[ 0,  1,  2,  3],
+#        [ 4,  5,  6,  7],
+#        [ 8,  9, 10, 11]])
+
+# Reshape to 2x6
+c = a.reshape(2, 6)
+
+# Flatten back to 1D
+d = b.flatten()  # or b.ravel()
+
+# Transpose (swap rows and columns)
+e = b.T
+# array([[ 0,  4,  8],
+#        [ 1,  5,  9],
+#        [ 2,  6, 10],
+#        [ 3,  7, 11]])
+\end{lstlisting}
+
+\begin{warning}
+\py{reshape()} requires the total number of elements to stay the same. You can't reshape a 12-element array into 3x5 (15 elements).
+\end{warning}
+
+% ----------------------------------------------------------------------------
+\section{Stacking and Splitting}
+\label{sec:stacking}
+
+\begin{lstlisting}
+a = np.array([1, 2, 3])
+b = np.array([4, 5, 6])
+
+# Stack vertically (row by row)
+np.vstack([a, b])
+# array([[1, 2, 3],
+#        [4, 5, 6]])
+
+# Stack horizontally (column by column)
+np.hstack([a, b])
+# array([1, 2, 3, 4, 5, 6])
+
+# Concatenate along an axis
+np.concatenate([a, b])  # same as hstack for 1D
+\end{lstlisting}
+
+Splitting:
+
+\begin{lstlisting}
+c = np.arange(12).reshape(3, 4)
+
+# Split into 3 parts along rows
+np.vsplit(c, 3)  # list of three 1x4 arrays
+
+# Split into 2 parts along columns
+np.hsplit(c, 2)  # list of two 3x2 arrays
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Linear Algebra}
+\label{sec:linear-algebra}
+
+NumPy provides linear algebra operations:
+
+\begin{lstlisting}
+a = np.array([[1, 2],
+              [3, 4]])
+b = np.array([[5, 6],
+              [7, 8]])
+
+# Matrix multiplication
+np.dot(a, b)     # or a @ b
+# array([[19, 22],
+#        [43, 50]])
+
+# Transpose
+a.T
+
+# Determinant
+np.linalg.det(a)  # -2.0
+
+# Inverse
+np.linalg.inv(a)
+
+# Eigenvalues and eigenvectors
+eigenvalues, eigenvectors = np.linalg.eig(a)
+
+# Solve linear system Ax = b
+A = np.array([[3, 1], [1, 2]])
+b = np.array([9, 8])
+x = np.linalg.solve(A, b)  # x such that A @ x = b
+\end{lstlisting}
+
+\begin{labexample}
+Linear regression using linear algebra:
+
+\begin{lstlisting}
+# Data: concentration vs absorbance
+conc = np.array([0.1, 0.2, 0.3, 0.4, 0.5])
+absorbance = np.array([0.12, 0.25, 0.35, 0.48, 0.61])
+
+# Set up design matrix for y = mx + c
+# [1 x1]       [c]     [y1]
+# [1 x2]   @   [m]  =  [y2]
+# ...                   ...
+A = np.column_stack([np.ones_like(conc), conc])
+b = absorbance
+
+# Solve least squares: (A^T A) x = A^T b
+coeffs = np.linalg.lstsq(A, b, rcond=None)[0]
+intercept, slope = coeffs
+
+print(f"Beer's Law: A = {slope:.3f} * C + {intercept:.3f}")
+print(f"Molar absorptivity (slope): {slope:.3f} L/(mol*cm)")
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Saving and Loading Data}
+\label{sec:numpy-io}
+
+\begin{lstlisting}
+data = np.random.rand(100, 5)
+
+# NumPy binary format (fast, preserves precision)
+np.save("data.npy", data)
+loaded = np.load("data.npy")
+
+# Text format (human-readable)
+np.savetxt("data.csv", data, delimiter=",")
+loaded = np.loadtxt("data.csv", delimiter=",")
+
+# Save multiple arrays
+np.savez("multiple.npz", wavelengths=wl, absorbances=ab)
+loaded = np.load("multiple.npz")
+print(loaded["wavelengths"])
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Common Patterns}
+\label{sec:numpy-patterns}
+
+\subsection{Normalize Data}
+
+\begin{lstlisting}
+data = np.array([10, 20, 30, 40, 50])
+
+# Scale to 0-1
+normalized = (data - data.min()) / (data.max() - data.min())
+
+# Z-score normalization
+z_scores = (data - data.mean()) / data.std()
+\end{lstlisting}
+
+\subsection{Moving Average}
+
+\begin{lstlisting}
+def moving_average(data, window):
+    return np.convolve(data, np.ones(window)/window, mode='valid')
+
+smoothed = moving_average(noisy_data, window=5)
+\end{lstlisting}
+
+\subsection{Finding Peaks}
+
+\begin{lstlisting}
+from scipy.signal import find_peaks # scipy is covered more in a later section
+
+data = np.array([1, 3, 7, 1, 2, 6, 4, 2])
+peaks, _ = find_peaks(data, height=5)  # indices where peaks > 5
+print(f"Peaks at indices: {peaks}")
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Chapter Summary}
+\label{sec:numpy-summary}
+
+NumPy is essential for scientific computing:
+
+\begin{itemize}
+    \item \textbf{Arrays:} \py{np.array()}, \py{np.zeros()}, \py{np.linspace()}
+    \item \textbf{Properties:} \py{.shape}, \py{.dtype}, \py{.size}
+    \item \textbf{Indexing:} \py{a[0]}, \py{a[1:5]}, \py{a[a > 0]}
+    \item \textbf{Operations:} Element-wise (\py{+}, \py{*}), functions (\py{np.sin}, \py{np.exp})
+    \item \textbf{Aggregation:} \py{np.sum()}, \py{np.mean()}, \py{np.std()}
+    \item \textbf{Linear algebra:} \py{@} or \py{np.dot()}, \py{np.linalg.solve()}
+    \item \textbf{Reshaping:} \py{.reshape()}, \py{.T}, \py{np.vstack()}
+\end{itemize}
+
+\begin{ponder}
+\begin{enumerate}
+    \item Why is \py{a * b} element-wise multiplication for arrays but \py{a @ b} is matrix multiplication?
+    \item How would you select all values in an array that are between 5 and 10?
+    \item What does \py{axis=0} vs \py{axis=1} mean for a 2D array?
+    \item Write code to normalize an array so its values sum to 1.
+\end{enumerate}
+\end{ponder}

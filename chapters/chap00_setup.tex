@@ -1,0 +1,553 @@
+% chap00_setup.tex - Installation and first steps
+% ============================================================================
+
+\chapter{Setting Up Your Environment}
+\label{chap:setup}
+
+Before writing any code, you need a working Python installation and a sensible way to organize your files. This chapter covers both. It's tempting to skip ahead to ``real'' programming, but a broken setup will frustrate you later. Invest an hour now; save countless hours tracking down environment problems.
+
+% ----------------------------------------------------------------------------
+\section{Why Scientists Program}
+\label{sec:why-program}
+
+You already know how to analyze data. You've used Excel, maybe Origin or Igor Pro. You can make graphs and calculate statistics. So why learn to program?
+
+\textbf{Reproducibility.} When you analyze data by clicking through menus, the process lives only in your memory. Three months later, a reviewer asks how you normalized those spectra. Good luck remembering which buttons you clicked. A \emph{script}---a text file containing instructions for the computer---documents every step. Run it again and you get exactly the same result.
+
+\textbf{Automation.} You have 200 data files from a week of measurements. Processing them one by one takes hours. A script processes them in seconds---and doesn't make mistakes at file 187 because it's tired.
+
+\textbf{Flexibility.} Commercial software does what its developers anticipated. Your analysis might need something unusual: a custom baseline correction, a niche fitting function, or a way to merge data from three different instruments. With programming, you build exactly what you need.
+
+\textbf{Figures.} Publication-quality figures require control over every detail: axis labels, font sizes, color schemes, subplot layouts. Matplotlib gives you that control. Once you write the code for a figure style you like, every future paper uses the same polished look.
+
+\begin{labexample}
+Imagine you collect UV-Vis spectra weekly to monitor a reaction. Each measurement produces a file. By the end of the project, you have 50 files. A Python script can:
+\begin{itemize}
+    \item Read all 50 files automatically
+    \item Subtract baseline from each spectrum
+    \item Calculate the absorbance at your wavelength of interest
+    \item Plot the results vs. time
+    \item Export the processed data and figure
+\end{itemize}
+When your advisor asks ``What if we use a different baseline method?''---you change one line and re-run.
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Computer Hygiene}
+\label{sec:hygiene}
+
+Before installing anything, let's establish some habits that prevent future headaches.
+
+\subsection{Folder Organization}
+
+Create a dedicated folder for your programming work. Don't scatter scripts across your Desktop, Downloads, and random project folders. Something like:
+
+\begin{lstlisting}[style=shellstyle]
+Documents/
+    python_projects/
+        learning/           # exercises from this book
+        lab_analysis/       # your research scripts
+        utilities/          # small helper scripts
+\end{lstlisting}
+
+Within each project, keep a consistent structure:
+
+\begin{lstlisting}[style=shellstyle]
+titration_project/
+    data/               # raw data files (never modify these)
+    output/             # processed data, figures
+    scripts/            # your Python code
+    README.txt          # notes about what this project does
+\end{lstlisting}
+
+\begin{warning}
+Never put spaces in folder or file names used with code. Use underscores instead: \filepath{titration\_data.csv}, not \filepath{titration data.csv}. Spaces cause problems with many programming tools.
+\end{warning}
+
+\subsection{File Naming}
+
+Good file names are:
+\begin{itemize}
+    \item Descriptive: \filepath{analyze\_kinetics.py}, not \filepath{script1.py}
+    \item Dated when relevant: \filepath{calibration\_2024\_03\_15.csv}
+    \item Consistent: pick a convention and stick with it
+\end{itemize}
+
+\subsection{Backup}
+
+Your code represents hours of work. Back it up. Options:
+
+\begin{itemize}
+    \item Cloud sync (Dropbox, OneDrive, Google Drive): automatic, easy
+    \item Git: a system that tracks every change you make to files, letting you undo mistakes and see your project's history. Best for code, but has a steeper learning curve.
+    \item External drive: simple but requires discipline
+\end{itemize}
+
+At minimum, use cloud sync for your \filepath{python\_projects} folder. We'll discuss Git later---it's worth learning, but not today.
+
+\section{Paths}
+\label{sec:paths}
+
+A \emph{path} is the address of a file on your computer. There are two types:
+
+\begin{itemize}
+    \item \textbf{Absolute path:} Full address from the root of the filesystem
+    \begin{itemize}
+        \item Windows: \filepath{C:\textbackslash Users\textbackslash Alice\textbackslash Documents\textbackslash data.txt}
+        \item macOS/Linux: \filepath{/home/alice/Documents/data.txt}
+    \end{itemize}
+    \item \textbf{Relative path:} Address relative to your current working directory
+    \begin{itemize}
+        \item \filepath{data.txt} (file in current directory)
+        \item \filepath{data/measurements.txt} (in a subfolder)
+        \item \filepath{../other\_project/data.txt} (\filepath{..} means parent directory)
+    \end{itemize}
+\end{itemize}
+
+
+% ----------------------------------------------------------------------------
+\section{Installing Python}
+\label{sec:install-python}
+
+Python is free. You download it, install it, and use it forever without paying anyone. Several distributions exist; we'll use the standard one from python.org.
+
+\begin{osbox}
+Installation differs slightly by operating system. Follow the section for your system, then continue to the next section about the terminal.
+\end{osbox}
+
+\subsection{Windows}
+
+\begin{enumerate}
+    \item Go to \url{https://www.python.org/downloads/}
+    \item Click the big yellow ``Download Python'' button (get version 3.11 or later)
+    \item Run the installer
+    \item \textbf{Important:} Check the box that says ``Add Python to PATH''
+    \item Click ``Install Now''
+    \item When finished, click ``Disable path length limit'' if that option appears
+\end{enumerate}
+
+\begin{note}
+What is ``PATH''? When you type a command like \shell{python}, your computer needs to know where to find the Python program. The PATH is a list of folders the computer searches through. ``Add Python to PATH'' means: ``remember where Python is installed so I can run it from anywhere.'' Without this, you'd have to type the full location of Python every time.
+\end{note}
+
+To verify the installation:
+\begin{enumerate}
+    \item Open PowerShell (search for it in the Start menu)
+    \item Type \shell{python --version} and press Enter
+    \item You should see something like \shell{Python 3.11.4}
+\end{enumerate}
+
+\begin{warning}
+Windows sometimes has an old ``python'' command that opens the Microsoft Store. If \shell{python --version} opens the Store instead of showing a version number, try \shell{python3 --version} instead. The ``Add Python to PATH'' checkbox during installation usually prevents this.
+\end{warning}
+
+\subsection{macOS}
+
+macOS comes with an old Python 2, which we don't want. Install Python 3:
+
+\begin{enumerate}
+    \item Go to \url{https://www.python.org/downloads/}
+    \item Download the macOS installer (version 3.11 or later)
+    \item Open the downloaded \filepath{.pkg} file
+    \item Follow the installation wizard
+\end{enumerate}
+
+To verify:
+\begin{enumerate}
+    \item Open Terminal (find it in Applications > Utilities, or search with Spotlight)
+    \item Type \shell{python3 --version} and press Enter
+    \item You should see the version number
+\end{enumerate}
+
+\begin{note}
+On macOS, always use \shell{python3} and \shell{pip3} instead of \shell{python} and \shell{pip}. The shorter commands often point to the old system Python 2.
+\end{note}
+
+\subsection{Linux}
+
+Most Linux distributions include Python 3. Check first:
+
+\begin{lstlisting}[style=shellstyle]
+python3 --version
+\end{lstlisting}
+
+If Python 3.9 or later is installed, you're done. If not, or if you need a newer version:
+
+\textbf{Ubuntu/Debian:}
+\begin{lstlisting}[style=shellstyle]
+sudo apt update
+sudo apt install python3 python3-pip python3-venv
+\end{lstlisting}
+
+\textbf{Fedora:}
+\begin{lstlisting}[style=shellstyle]
+sudo dnf install python3 python3-pip
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{The Terminal: Talking to Your Computer}
+\label{sec:launcher}
+
+You're used to interacting with your computer by clicking icons and menus. But there's another way: typing commands directly. The program where you type these commands is called a \emph{terminal} (also called a ``command line'' or ``shell''). Think of it as having a text conversation with your computer instead of pointing at things.
+
+Why use the terminal? Because many programming tools---including Python---are designed to be run by typing commands. It's also faster once you learn the basics, and it's the universal way programmers work across all operating systems.
+
+Each operating system has its own terminal program:
+
+\begin{itemize}
+    \item \textbf{Windows:} Command Prompt or PowerShell (both pre-installed; search in Start menu). PowerShell is the newer one.
+    \item \textbf{macOS:} Terminal (in Applications > Utilities, or search with Spotlight)
+    \item \textbf{Linux:} Terminal (varies by distribution; usually Ctrl+Alt+T opens it)
+\end{itemize}
+
+You'll also hear about Anaconda Prompt. Anaconda is an alternative Python distribution popular in data science. It's fine, but adds complexity. We'll use standard Python to keep things simple.
+
+Open your terminal now. You'll see a \emph{prompt}---some text followed by a cursor, waiting for you to type something:
+
+\begin{lstlisting}[style=shellstyle]
+PS C:\Users\yourname>          # Windows PowerShell
+C:\Users\yourname>             # Windows Command Prompt
+yourname@computer ~ %          # macOS Terminal
+yourname@computer:~$           # Linux Terminal
+\end{lstlisting}
+
+The exact appearance varies, but they all work the same way: you type a \emph{command} (an instruction) and press Enter. The computer does what you asked, shows you the result, and waits for the next command.
+
+% ----------------------------------------------------------------------------
+\section{Your First Python Session}
+\label{sec:first-repl}
+
+Let's run Python. In your launcher, type:
+
+\begin{lstlisting}[style=shellstyle]
+python          # Windows
+python3         # macOS/Linux
+\end{lstlisting}
+
+You should see something like:
+
+\begin{lstlisting}[style=outputstyle]
+Python 3.11.4 (main, Jun  9 2023, 07:30:55)
+[GCC 12.2.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>>
+\end{lstlisting}
+
+The \py{>>>} is Python's prompt. It's waiting for you to type something. This interactive mode is called the REPL: Read-Eval-Print Loop. Python reads what you type, evaluates it, prints the result, then loops back to wait for more.
+
+Try some calculations:
+
+\begin{lstlisting}
+>>> 2 + 2
+4
+>>> 7 * 6
+42
+>>> 10 / 3
+3.3333333333333335
+\end{lstlisting}
+
+Python responds immediately with the answer. Now try something more interesting:
+
+\begin{lstlisting}
+>>> print("Hello, scientist!")
+Hello, scientist!
+\end{lstlisting}
+
+Here we're using \py{print()}, which is a \emph{function}. A function is a named action---you give it some input (inside the parentheses), and it does something with it. The \py{print()} function displays whatever you give it on screen. The quotes around the text mark it as a \emph{string}---a piece of text data, rather than a command or variable name. We'll learn much more about functions and strings soon.
+
+To exit the REPL:
+
+\begin{lstlisting}
+>>> exit()
+\end{lstlisting}
+
+Or press Ctrl+D (macOS/Linux) or Ctrl+Z then Enter (Windows).
+
+\begin{ponder}
+What happens if you type \py{print(Hello)} without the quotes? Try it and read the error message. Why does Python complain?
+\end{ponder}
+
+% ----------------------------------------------------------------------------
+\section{Virtual Environments}
+\label{sec:venv}
+
+This section might seem bureaucratic, but it solves real problems. Pay attention.
+
+\subsection{The Problem}
+
+Python by itself can do basic things, but its real power comes from \emph{packages} (also called \emph{libraries})---collections of code that other people have written and shared. Think of them like apps for your phone: Python is the operating system, and packages add new abilities. NumPy does numerical computing, Matplotlib makes plots, Pandas handles data tables. You'll install many of them.
+
+But here's the problem: different projects might need different versions of the same package. Project A needs NumPy 1.24; Project B needs NumPy 1.21 because it works with an older package that doesn't support the new version.
+
+If you install packages globally (available everywhere on your computer), you can only have one version. Updating for Project A breaks Project B. This is called ``dependency hell,'' and it's why scientists often say ``I reinstalled Python and now nothing works.''
+
+\subsection{The Solution}
+
+Virtual environments. Each project gets its own isolated Python environment with its own packages. Project A's environment has NumPy 1.24. Project B's environment has NumPy 1.21. They don't interfere with each other.
+
+Think of it like having separate lab benches for different experiments. You wouldn't mix reagents from two different projects on the same bench.
+
+\subsection{Creating a Virtual Environment}
+
+Navigate to your project folder in the terminal:
+
+\begin{lstlisting}[style=shellstyle]
+cd Documents/python_projects/learning
+\end{lstlisting}
+
+Create a virtual environment (we'll call it \filepath{venv}):
+
+\begin{lstlisting}[style=shellstyle]
+python -m venv venv         # Windows
+python3 -m venv venv        # macOS/Linux
+\end{lstlisting}
+
+This creates a \filepath{venv} folder containing a private Python installation.
+
+\subsection{Activating the Environment}
+
+Before using the environment, you must activate it:
+
+\begin{osbox}
+\textbf{Windows (PowerShell):}
+\begin{lstlisting}[style=shellstyle]
+.\venv\Scripts\Activate.ps1
+\end{lstlisting}
+
+\textbf{Windows (Command Prompt):}
+\begin{lstlisting}[style=shellstyle]
+venv\Scripts\activate.bat
+\end{lstlisting}
+
+\textbf{macOS/Linux:}
+\begin{lstlisting}[style=shellstyle]
+source venv/bin/activate
+\end{lstlisting}
+\end{osbox}
+
+When activated, your prompt changes to show the environment name:
+
+\begin{lstlisting}[style=shellstyle]
+(venv) PS C:\Users\yourname\Documents\python_projects\learning>
+\end{lstlisting}
+
+That \shell{(venv)} prefix means you're in the virtual environment. Any packages you install now go into this environment only.
+
+\begin{warning}
+If you get an error about ``execution policies'' on Windows PowerShell, run this command first (as administrator):
+\begin{lstlisting}[style=shellstyle]
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+\end{lstlisting}
+Then try activating again.
+\end{warning}
+
+\subsection{Installing Packages}
+
+With the environment activated, use \shell{pip} to install packages. Pip is Python's package manager---a tool that downloads packages from the internet and installs them for you. Think of it like an app store that you access by typing commands.
+
+\begin{lstlisting}[style=shellstyle]
+pip install numpy matplotlib pandas
+\end{lstlisting}
+
+This downloads NumPy, Matplotlib, and Pandas from the Python Package Index (a central repository of Python packages) and installs them into your virtual environment. To see what's installed:
+
+\begin{lstlisting}[style=shellstyle]
+pip list
+\end{lstlisting}
+
+\subsection{Saving and Reproducing Environments}
+
+After installing packages, save the list to a file:
+
+\begin{lstlisting}[style=shellstyle]
+pip freeze > requirements.txt
+\end{lstlisting}
+
+This creates a \filepath{requirements.txt} file listing every package and its exact version. When setting up the project on another computer (or helping a collaborator), they can recreate your environment:
+
+\begin{lstlisting}[style=shellstyle]
+pip install -r requirements.txt
+\end{lstlisting}
+
+\begin{labexample}
+Your collaborator can't reproduce your analysis. ``It works on my machine,'' you say. They're missing a package, or have a different version. Send them your \filepath{requirements.txt} and tell them to:
+\begin{lstlisting}[style=shellstyle]
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+\end{lstlisting}
+Now they have exactly your environment.
+\end{labexample}
+
+\subsection{Deactivating}
+
+When you're done working, deactivate the environment:
+
+\begin{lstlisting}[style=shellstyle]
+deactivate
+\end{lstlisting}
+
+The \shell{(venv)} prefix disappears. You're back to the system Python.
+
+\begin{tip}
+Always activate your project's virtual environment before working. Make it a habit, like putting on safety glasses before entering the lab. Many ``my code stopped working'' problems are just forgotten activation.
+\end{tip}
+
+% ----------------------------------------------------------------------------
+\section{Three Ways to Run Python Code}
+\label{sec:three-ways}
+
+You've seen the REPL. It's great for quick experiments, but not for serious work. Let's cover all three ways to run Python code.
+
+\subsection{Interactive REPL}
+
+You already know this one. Type \shell{python} (or \shell{python3}), and you're in an interactive session. Good for:
+\begin{itemize}
+    \item Quick calculations
+    \item Testing small code snippets
+    \item Exploring how functions work
+\end{itemize}
+
+Not good for:
+\begin{itemize}
+    \item Anything longer than a few lines
+    \item Code you want to save and reuse
+\end{itemize}
+
+\subsection{Python Scripts}
+
+A script is a text file containing Python code, saved with a \filepath{.py} extension. You write the code once, then run it whenever you want.
+
+Create a file called \filepath{hello.py} with this content:
+
+\begin{lstlisting}
+# hello.py - My first Python script
+print("Hello from a script!")
+print("This is more than one line.")
+result = 6 * 7
+print(f"Six times seven is {result}")
+\end{lstlisting}
+
+Run it from the terminal:
+
+\begin{lstlisting}[style=shellstyle]
+python hello.py         # Windows
+python3 hello.py        # macOS/Linux
+\end{lstlisting}
+
+Output:
+\begin{lstlisting}[style=outputstyle]
+Hello from a script!
+This is more than one line.
+Six times seven is 42
+\end{lstlisting}
+
+Scripts are how you'll write most of your code. They're saved, editable, and shareable.
+
+\subsection{Jupyter Notebooks}
+
+Jupyter notebooks mix code, output, and explanatory text in one document. They're popular for data exploration and creating reports.
+
+Install Jupyter in your virtual environment:
+
+\begin{lstlisting}[style=shellstyle]
+pip install jupyter
+\end{lstlisting}
+
+Launch it:
+
+\begin{lstlisting}[style=shellstyle]
+jupyter notebook
+\end{lstlisting}
+
+A browser window opens with the Jupyter interface. You can create notebooks, write code in cells, and run them interactively.
+
+Notebooks are excellent for:
+\begin{itemize}
+    \item Exploratory data analysis
+    \item Creating reports with embedded figures
+    \item Teaching and documentation
+\end{itemize}
+
+Less ideal for:
+\begin{itemize}
+    \item Large, complex programs
+    \item Code that runs automatically (without human interaction)
+    \item Version control with Git
+\end{itemize}
+
+We'll mostly use scripts in this book because they teach better programming habits. But know that notebooks exist---you'll encounter them in the wild.
+
+% ----------------------------------------------------------------------------
+\section{Choosing an Editor}
+\label{sec:editor}
+
+You need a text editor to write scripts. Not Microsoft Word---that's a word processor that adds invisible formatting codes. You need an editor that saves \emph{plain text}: exactly what you type, nothing more.
+
+\subsection{Start Simple: Basic Text Editors}
+
+The best way to start is with a simple text editor. This might seem primitive, but it teaches you something important: Python scripts are just text files. You don't need special software to write Python---any program that saves plain text will work. This matters because it means your code isn't trapped in any particular tool.
+
+\begin{itemize}
+    \item \textbf{Windows:} The built-in Notepad works, though Notepad++ is better (free download from \url{https://notepad-plus-plus.org/}). Notepad++ has ``syntax highlighting''---it colours different parts of your code differently, making it easier to read.
+    \item \textbf{macOS:} TextEdit works if you set it to plain text mode (Format > Make Plain Text). BBEdit (free version at \url{https://www.barebones.com/products/bbedit/}) is friendlier.
+    \item \textbf{Linux:} gedit, kate, or your distribution's default text editor.
+\end{itemize}
+
+\begin{tip}
+I recommend starting with a basic text editor for your first few scripts. This builds understanding of what Python files really are. You won't develop false beliefs like ``I need special software for this script to work.'' Once you're comfortable with the basics, you can upgrade to a more powerful tool.
+\end{tip}
+
+\subsection{Upgrading Later: Integrated Development Environments}
+
+An IDE (Integrated Development Environment) is an editor designed specifically for programming. It provides helpful features: syntax highlighting, automatic error detection, tools to explore variables while your code runs, and more. When you're ready to upgrade from a basic text editor, here are the options.
+
+\textbf{Spyder:} Designed specifically for scientific Python. If you've used RStudio, Spyder will feel familiar---it has a similar layout with your code on one side and a variable explorer on the other. It shows you the values of all your variables as your code runs, which is incredibly helpful for learning and for data analysis.
+
+Install Spyder with pip (make sure your virtual environment is activated):
+
+\begin{lstlisting}[style=shellstyle]
+pip install spyder
+spyder    # to launch
+\end{lstlisting}
+
+Or download it from \url{https://www.spyder-ide.org/}.
+
+\begin{tip}
+For scientists, I recommend Spyder when you're ready for an IDE. Its variable explorer lets you see your data as you work, which matches how scientists think about analysis. The learning curve is gentler than other options, and it's built specifically for the kind of work you'll be doing.
+\end{tip}
+
+\textbf{Visual Studio Code (VS Code):} Made by Microsoft, free, and extremely popular. It's a general-purpose programming editor used for many languages. Download from \url{https://code.visualstudio.com/}. After installing, you'll need to add the Python extension: click the Extensions icon (four squares) in the sidebar, search for ``Python,'' and install it.
+
+\begin{warning}
+VS Code is powerful but designed for professional software developers. It has many settings and features that can confuse beginners. For example, it might silently change which Python installation it uses, breaking your code in mysterious ways. The popularity of VS Code means you'll find lots of online tutorials using it, so it's worth knowing about. But for scientific work, Spyder is usually a better fit.
+\end{warning}
+
+% ----------------------------------------------------------------------------
+\section{Chapter Summary}
+\label{sec:setup-summary}
+
+You now have:
+
+\begin{itemize}
+    \item Python installed and verified
+    \item A terminal where you can type commands to your computer
+    \item Understanding of virtual environments and packages (and why they matter)
+    \item Knowledge of three ways to run Python: interactive mode (REPL), scripts, and notebooks
+    \item A text editor for writing code (and knowledge of Spyder for later)
+\end{itemize}
+
+Before moving on, make sure you can:
+
+\begin{enumerate}
+    \item Open your terminal and start Python
+    \item Create and activate a virtual environment
+    \item Install a package with pip
+    \item Create a \filepath{.py} file and run it from the terminal
+\end{enumerate}
+
+If any of these don't work, debug now. Search for your error message online. The setup must work before you can learn programming.
+
+\begin{ponder}
+Why do we use virtual environments instead of installing packages globally? What problem would arise if two of your projects needed different versions of NumPy?
+\end{ponder}

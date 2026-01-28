@@ -1,0 +1,311 @@
+% preamble.tex - All packages and styling for Python for Scientists
+% ============================================================================
+
+% Document class: KOMA-Script book (professional European book layout)
+\documentclass[
+    11pt,
+    a4paper,
+    twoside,
+    open=right,
+    chapterprefix=true,
+    headings=normal,
+    bibliography=totoc,
+    listof=totoc
+]{scrbook}
+
+% ============================================================================
+% ENCODING AND FONTS
+% ============================================================================
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}            % Latin Modern fonts
+\usepackage[expansion=false]{microtype}  % Improved typography (no expansion)
+
+% ============================================================================
+% PAGE LAYOUT
+% ============================================================================
+\usepackage[
+    inner=2.5cm,
+    outer=2cm,
+    top=2.5cm,
+    bottom=2.5cm,
+    headheight=14pt
+]{geometry}
+
+% ============================================================================
+% COLORS
+% ============================================================================
+\usepackage{xcolor}
+
+% Syntax highlighting colors (adapted from original crash course)
+\definecolor{codegreen}{rgb}{0.0, 0.5, 0.0}
+\definecolor{codepurple}{rgb}{0.58, 0.0, 0.82}
+\definecolor{codeorange}{rgb}{0.8, 0.4, 0.0}
+\definecolor{codeblue}{rgb}{0.0, 0.0, 0.7}
+\definecolor{codegray}{rgb}{0.5, 0.5, 0.5}
+\definecolor{codecyan}{rgb}{0.0, 0.5, 0.5}
+\definecolor{backcolour}{rgb}{0.97, 0.97, 0.97}
+
+% Admonition box colors
+\definecolor{warningbg}{RGB}{255, 243, 205}
+\definecolor{warningborder}{RGB}{255, 193, 7}
+\definecolor{tipbg}{RGB}{209, 236, 241}
+\definecolor{tipborder}{RGB}{23, 162, 184}
+\definecolor{notebg}{RGB}{232, 245, 233}
+\definecolor{noteborder}{RGB}{76, 175, 80}
+\definecolor{osbg}{RGB}{232, 234, 246}
+\definecolor{osborder}{RGB}{63, 81, 181}
+
+% ============================================================================
+% CODE LISTINGS
+% ============================================================================
+\usepackage{listings}
+
+% Python style
+\lstdefinestyle{pythonstyle}{
+    language=Python,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{codeblue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codeorange},
+    emphstyle=\color{codepurple},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    framesep=3pt,
+    rulecolor=\color{codegray},
+    xleftmargin=1.5em,
+    framexleftmargin=1.5em,
+    morekeywords={True, False, None, self, as, with, yield, lambda, assert},
+    emph={print, range, len, type, isinstance, int, float, str, bool, list, dict, set, tuple, open, input, sum, min, max, abs, round, sorted, enumerate, zip, map, filter},
+    escapeinside={(*@}{@*)},
+    literate=
+        {>>>}{{{\color{codecyan}>>>}}}3
+        {...}{{{\color{codecyan}...}}}3
+}
+
+% Shell/terminal style
+\lstdefinestyle{shellstyle}{
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    keepspaces=true,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    framesep=3pt,
+    rulecolor=\color{codegray},
+    xleftmargin=0.5em,
+    framexleftmargin=0.5em,
+}
+
+% Output style (no line numbers, slightly different background)
+\lstdefinestyle{outputstyle}{
+    backgroundcolor=\color{white},
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    framesep=3pt,
+    rulecolor=\color{codegray!50},
+    xleftmargin=0.5em,
+    framexleftmargin=0.5em,
+}
+
+% Set Python as default
+\lstset{style=pythonstyle}
+
+% Inline code command
+\newcommand{\py}[1]{\lstinline[style=pythonstyle]|#1|}
+\newcommand{\shell}[1]{\lstinline[style=shellstyle]|#1|}
+
+% ============================================================================
+% ADMONITION BOXES
+% ============================================================================
+\usepackage{tcolorbox}
+\tcbuselibrary{skins}
+
+% Warning box
+\newtcolorbox{warning}[1][]{
+    enhanced,
+    colback=warningbg,
+    colframe=warningborder,
+    coltitle=black,
+    fonttitle=\bfseries,
+    title={\textbf{Warning}},
+    left=8pt,
+    right=8pt,
+    top=6pt,
+    bottom=6pt,
+    boxrule=1.5pt,
+    #1
+}
+
+% Tip box
+\newtcolorbox{tip}[1][]{
+    enhanced,
+    colback=tipbg,
+    colframe=tipborder,
+    coltitle=black,
+    fonttitle=\bfseries,
+    title={\textbf{Tip}},
+    left=8pt,
+    right=8pt,
+    top=6pt,
+    bottom=6pt,
+    boxrule=1.5pt,
+    #1
+}
+
+% Note box
+\newtcolorbox{note}[1][]{
+    enhanced,
+    colback=notebg,
+    colframe=noteborder,
+    coltitle=black,
+    fonttitle=\bfseries,
+    title={\textbf{Note}},
+    left=8pt,
+    right=8pt,
+    top=6pt,
+    bottom=6pt,
+    boxrule=1.5pt,
+    #1
+}
+
+% OS-specific box
+\newtcolorbox{osbox}[1][]{
+    enhanced,
+    colback=osbg,
+    colframe=osborder,
+    coltitle=black,
+    fonttitle=\bfseries,
+    title={\textbf{OS Differences}},
+    left=8pt,
+    right=8pt,
+    top=6pt,
+    bottom=6pt,
+    boxrule=1.5pt,
+    #1
+}
+
+% Lab example box (for chemistry/science examples)
+\definecolor{labbg}{RGB}{255, 248, 225}
+\definecolor{labborder}{RGB}{255, 152, 0}
+\newtcolorbox{labexample}[1][]{
+    enhanced,
+    colback=labbg,
+    colframe=labborder,
+    coltitle=black,
+    fonttitle=\bfseries,
+    title={\textbf{Lab Example}},
+    left=8pt,
+    right=8pt,
+    top=6pt,
+    bottom=6pt,
+    boxrule=1.5pt,
+    #1
+}
+
+% Things to ponder box
+\definecolor{ponderbg}{RGB}{243, 229, 245}
+\definecolor{ponderborder}{RGB}{156, 39, 176}
+\newtcolorbox{ponder}[1][]{
+    enhanced,
+    colback=ponderbg,
+    colframe=ponderborder,
+    coltitle=black,
+    fonttitle=\bfseries,
+    title={\textbf{Things to Ponder}},
+    left=8pt,
+    right=8pt,
+    top=6pt,
+    bottom=6pt,
+    boxrule=1.5pt,
+    #1
+}
+
+% ============================================================================
+% MATHEMATICS
+% ============================================================================
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% ============================================================================
+% GRAPHICS AND TABLES
+% ============================================================================
+\usepackage{graphicx}
+\usepackage{booktabs}           % Professional tables
+\usepackage{array}
+\usepackage{multicol}
+\usepackage{float}              % Better figure placement
+
+% ============================================================================
+% HYPERLINKS AND CROSS-REFERENCES
+% ============================================================================
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=codeblue,
+    filecolor=codepurple,
+    urlcolor=codecyan,
+    citecolor=codegreen,
+    pdftitle={Python and Computational Thinking: A Crash Course for Scientists},
+    pdfauthor={Frithjof Herb},
+    pdfsubject={Python Programming for Scientists},
+    pdfkeywords={Python, programming, science, chemistry, data analysis},
+    bookmarksnumbered=true,
+    bookmarksopen=true,
+}
+
+% ============================================================================
+% HEADERS AND FOOTERS
+% ============================================================================
+\usepackage{scrlayer-scrpage}
+\pagestyle{scrheadings}
+\clearpairofpagestyles
+\ohead{\pagemark}
+\ihead{\headmark}
+
+% ============================================================================
+% MISCELLANEOUS
+% ============================================================================
+\usepackage{enumitem}           % Better list formatting
+\setlist{noitemsep}             % Reduce spacing in lists
+
+% Chapter formatting
+\addtokomafont{chapter}{\color{codeblue}}
+\addtokomafont{section}{\color{codeblue!80!black}}
+\addtokomafont{subsection}{\color{codeblue!60!black}}
+
+% Prevent widows and orphans
+\clubpenalty=10000
+\widowpenalty=10000
+
+% ============================================================================
+% CUSTOM COMMANDS
+% ============================================================================
+
+% Keyboard key styling
+\newcommand{\key}[1]{\texttt{\fbox{\small #1}}}
+
+% File/folder path styling
+\newcommand{\filepath}[1]{\texttt{#1}}
+
+% Menu navigation
+\newcommand{\menu}[1]{\textsf{#1}}
+
+% Variable names in running text
+\newcommand{\var}[1]{\texttt{#1}}

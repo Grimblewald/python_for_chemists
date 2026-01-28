@@ -1,0 +1,472 @@
+% chap05_files_io.tex - Reading and writing files
+% ============================================================================
+
+\chapter{Working with Files}
+\label{chap:files}
+
+Scientific data lives in files: CSV tables from instruments, text files of measurements, configuration files for experiments. This chapter teaches you to read data from files and write results back out---essential skills for any scientist who programs. While libraries like \py{Pandas} (discussed later) provide methods for reading common file types, understanding how to read and write arbitrary files is a powerful skill.
+
+% ----------------------------------------------------------------------------
+\section{Opening and Closing Files}
+\label{sec:opening-files}
+
+The \py{open()} function opens a file and returns a \emph{file object} you can read from or write to:
+
+\begin{lstlisting}
+# Open a file for reading
+file = open("data.txt", "r")
+content = file.read()
+file.close()
+\end{lstlisting}
+
+The second argument specifies the \emph{mode}:
+\begin{itemize}
+    \item \py{"r"} --- Read (default). File must exist.
+    \item \py{"w"} --- Write. Creates file or overwrites existing.
+    \item \py{"a"} --- Append. Adds to end of existing file.
+    \item \py{"x"} --- Exclusive creation. Fails if file exists.
+\end{itemize}
+
+\begin{warning}
+Always close files when you're done. Forgetting to close can cause data loss or prevent other programs from accessing the file. The \py{with} statement (next section) handles this automatically.
+\end{warning}
+
+% ----------------------------------------------------------------------------
+\section{The with Statement}
+\label{sec:with-statement}
+
+The \py{with} statement automatically closes files, even if errors occur:
+
+\begin{lstlisting}
+with open("data.txt", "r") as file:
+    content = file.read()
+    # file is automatically closed when this block ends
+
+# file is now closed
+\end{lstlisting}
+
+\textbf{Always use \py{with} when working with files.} It's safer and cleaner.
+
+% ----------------------------------------------------------------------------
+\section{Reading Files}
+\label{sec:reading-files}
+
+\subsection{Read Entire File}
+
+\begin{lstlisting}
+with open("data.txt", "r") as file:
+    content = file.read()  # entire file as one string
+    print(content)
+\end{lstlisting}
+
+\subsection{Read Lines}
+
+\begin{lstlisting}
+with open("data.txt", "r") as file:
+    lines = file.readlines()  # list of lines
+
+for line in lines:
+    print(line)
+\end{lstlisting}
+
+\begin{note}
+Each line includes the newline character (\py{\\n}) at the end. Use \py{line.strip()} to remove it.
+\end{note}
+
+\subsection{Read Line by Line (Memory Efficient)}
+
+For large files, iterate directly over the file object:
+
+\begin{lstlisting}
+with open("large_data.txt", "r") as file:
+    for line in file:
+        process(line.strip())
+\end{lstlisting}
+
+This reads one line at a time, not the whole file into memory.
+
+\begin{labexample}
+Reading a simple data file with one measurement per line:
+
+\begin{lstlisting}
+# File: measurements.txt
+# 23.4
+# 25.1
+# 24.8
+# 26.2
+
+measurements = []
+with open("measurements.txt", "r") as file:
+    for line in file:
+        line = line.strip()        # remove whitespace
+        if line:                   # skip empty lines
+            value = float(line)    # convert to number
+            measurements.append(value)
+
+print(f"Read {len(measurements)} values")
+print(f"Average: {sum(measurements)/len(measurements):.2f}")
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Writing Files}
+\label{sec:writing-files}
+
+\subsection{Write Text}
+
+\begin{lstlisting}
+with open("output.txt", "w") as file:
+    file.write("First line\n")
+    file.write("Second line\n")
+\end{lstlisting}
+
+\begin{warning}
+Mode \py{"w"} overwrites the file completely. If the file existed, its old content is gone. Use \py{"a"} to append instead.
+\end{warning}
+
+\subsection{Write Multiple Lines}
+
+\begin{lstlisting}
+lines = ["Line 1", "Line 2", "Line 3"]
+
+with open("output.txt", "w") as file:
+    for line in lines:
+        file.write(line + "\n")
+
+# Or use writelines (doesn't add newlines automatically!)
+with open("output.txt", "w") as file:
+    file.writelines(line + "\n" for line in lines)
+\end{lstlisting}
+
+\begin{labexample}
+Saving processed data:
+
+\begin{lstlisting}
+times = [0, 10, 20, 30, 40, 50]
+concentrations = [1.0, 0.82, 0.67, 0.55, 0.45, 0.37]
+
+with open("kinetics_results.txt", "w") as file:
+    file.write("Time (s)\tConcentration (M)\n")
+    file.write("-" * 30 + "\n")
+    for t, c in zip(times, concentrations):
+        file.write(f"{t}\t{c:.4f}\n")
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Working with Paths}
+
+Python's \py{pathlib} module provides a clean way to work with paths (recall section~\ref{sec:paths}):
+
+\begin{lstlisting}
+from pathlib import Path
+
+# Create a path
+data_dir = Path("data")
+file_path = data_dir / "measurements.txt"  # / joins paths
+
+# Check if file exists
+if file_path.exists():
+    print("File found!")
+
+# Get file information
+print(file_path.name)       # measurements.txt
+print(file_path.stem)       # measurements
+print(file_path.suffix)     # .txt
+print(file_path.parent)     # data
+
+# List files in a directory
+for file in Path("data").glob("*.csv"):
+    print(file)
+\end{lstlisting}
+
+\begin{tip}
+Using \py{pathlib} instead of raw strings makes your code work on both Windows (which uses backslashes) and macOS/Linux (which use forward slashes). The \py{/} operator builds the correct path for your system.
+\end{tip}
+
+% ----------------------------------------------------------------------------
+\section{CSV Files}
+\label{sec:csv}
+
+CSV (Comma-Separated Values) is the most common format for tabular data. Each line is a row, with columns separated by commas:
+
+\begin{lstlisting}[style=outputstyle]
+wavelength,absorbance
+400,0.12
+450,0.34
+500,0.56
+550,0.43
+\end{lstlisting}
+
+\subsection{Reading CSV with the csv Module}
+
+\begin{lstlisting}
+import csv
+
+with open("spectrum.csv", "r") as file:
+    reader = csv.reader(file)
+    header = next(reader)  # skip header row
+
+    for row in reader:
+        wavelength = float(row[0])
+        absorbance = float(row[1])
+        print(f"{wavelength} nm: A = {absorbance}")
+\end{lstlisting}
+
+\subsection{CSV with Headers: DictReader}
+
+\py{DictReader} gives you each row as a dictionary with column names as keys:
+
+\begin{lstlisting}
+import csv
+
+with open("spectrum.csv", "r") as file:
+    reader = csv.DictReader(file)
+
+    for row in reader:
+        print(row["wavelength"], row["absorbance"])
+\end{lstlisting}
+
+This is more readable and less error-prone than using indices.
+
+\subsection{Writing CSV}
+
+\begin{lstlisting}
+import csv
+
+wavelengths = [400, 450, 500, 550, 600]
+absorbances = [0.12, 0.34, 0.56, 0.43, 0.21]
+
+with open("output.csv", "w", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerow(["wavelength", "absorbance"])  # header
+
+    for w, a in zip(wavelengths, absorbances):
+        writer.writerow([w, a])
+\end{lstlisting}
+
+\begin{note}
+The \py{newline=""} argument prevents blank lines between rows on Windows.
+\end{note}
+
+\begin{labexample}
+Processing a CSV of titration data:
+
+\begin{lstlisting}
+import csv
+
+volumes = []
+pH_values = []
+
+with open("titration.csv", "r") as file:
+    reader = csv.DictReader(file)
+    for row in reader:
+        volumes.append(float(row["volume_mL"]))
+        pH_values.append(float(row["pH"]))
+
+# Find equivalence point (maximum pH change)
+max_change = 0
+equiv_volume = 0
+for i in range(1, len(pH_values)):
+    change = pH_values[i] - pH_values[i-1]
+    if change > max_change:
+        max_change = change
+        equiv_volume = volumes[i]
+
+print(f"Equivalence point at approximately {equiv_volume} mL")
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Handling Different Delimiters}
+\label{sec:delimiters}
+
+Not all ``CSV'' files use commas. Tab-separated and semicolon-separated are common:
+
+\begin{lstlisting}
+import csv
+
+# Tab-separated
+with open("data.tsv", "r") as file:
+    reader = csv.reader(file, delimiter="\t")
+    for row in reader:
+        print(row)
+
+# Semicolon-separated (common in European data)
+with open("data.csv", "r") as file:
+    reader = csv.reader(file, delimiter=";")
+    for row in reader:
+        print(row)
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{JSON Files}
+\label{sec:json}
+
+JSON (JavaScript Object Notation, JavaScript is another type of programming language) is a format for structured data, commonly used for configuration files and web APIs (API means application programming interface, a way for programs to interact with things). It looks similar to Python dictionaries:
+
+\begin{lstlisting}[style=outputstyle]
+{
+    "experiment": "kinetics_001",
+    "temperature": 298.15,
+    "concentrations": [0.1, 0.2, 0.3],
+    "parameters": {
+        "rate_constant": 0.05,
+        "order": 1
+    }
+}
+\end{lstlisting}
+
+\subsection{Reading JSON}
+
+\begin{lstlisting}
+import json
+
+with open("config.json", "r") as file:
+    data = json.load(file)
+
+print(data["experiment"])         # kinetics_001
+print(data["parameters"]["rate_constant"])  # 0.05
+\end{lstlisting}
+
+\subsection{Writing JSON}
+
+\begin{lstlisting}
+import json
+
+results = {
+    "experiment": "kinetics_001",
+    "rate_constant": 0.0523,
+    "r_squared": 0.9987,
+    "observations": [1.0, 0.82, 0.67, 0.55, 0.45]
+}
+
+with open("results.json", "w") as file:
+    json.dump(results, file, indent=2)  # indent for readability
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Handling Encoding}
+\label{sec:encoding}
+
+Text files use different \emph{encodings} to represent characters. UTF-8 is the modern standard, but you may encounter files in other encodings:
+
+\begin{lstlisting}
+# Specify encoding explicitly
+with open("data.txt", "r", encoding="utf-8") as file:
+    content = file.read()
+
+# For files with special characters that won't open
+with open("old_data.txt", "r", encoding="latin-1") as file:
+    content = file.read()
+\end{lstlisting}
+
+\begin{warning}
+If you get a \py{UnicodeDecodeError}, the file probably uses a different encoding than Python expects. Common alternatives to try: \py{"latin-1"}, \py{"cp1252"} (Windows), or \py{"iso-8859-1"}. This happens because computers don't store text, only numbers. Each character gets an index number and different encoding schems index differently, humans rarely agree on anything and so we have many encoding schemes in use. Thankfully, these days almost everyone agrees on the UTF encoding schema.
+\end{warning}
+
+% ----------------------------------------------------------------------------
+\section{Error Handling for Files}
+\label{sec:file-errors}
+
+Files can fail to open for many reasons: wrong path, permissions, file in use. Handle these gracefully:
+
+\begin{lstlisting}
+from pathlib import Path
+
+filepath = Path("data.txt")
+
+if not filepath.exists():
+    print(f"Error: {filepath} not found")
+else:
+    with open(filepath, "r") as file:
+        content = file.read()
+\end{lstlisting}
+
+Or use exception handling (covered in detail in the next chapter):
+
+\begin{lstlisting}
+try:
+    with open("data.txt", "r") as file:
+        content = file.read()
+except FileNotFoundError:
+    print("File not found!")
+except PermissionError:
+    print("Permission denied!")
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{A Complete Example}
+\label{sec:files-example}
+
+Processing a folder of spectroscopy data files:
+
+\begin{lstlisting}
+import csv
+from pathlib import Path
+
+def process_spectrum(filepath):
+    """Read a spectrum CSV and return wavelengths, absorbances."""
+    wavelengths = []
+    absorbances = []
+
+    with open(filepath, "r") as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            wavelengths.append(float(row["wavelength"]))
+            absorbances.append(float(row["absorbance"]))
+
+    return wavelengths, absorbances
+
+def find_peak(wavelengths, absorbances):
+    """Find wavelength of maximum absorbance."""
+    max_abs = max(absorbances)
+    max_idx = absorbances.index(max_abs)
+    return wavelengths[max_idx], max_abs
+
+# Process all CSV files in data folder
+data_folder = Path("spectra")
+results = []
+
+for filepath in data_folder.glob("*.csv"):
+    wavelengths, absorbances = process_spectrum(filepath)
+    peak_wl, peak_abs = find_peak(wavelengths, absorbances)
+    results.append({
+        "filename": filepath.name,
+        "peak_wavelength": peak_wl,
+        "peak_absorbance": peak_abs
+    })
+    print(f"{filepath.name}: peak at {peak_wl} nm (A = {peak_abs:.3f})")
+
+# Save summary
+with open("summary.csv", "w", newline="") as file:
+    writer = csv.DictWriter(file,
+        fieldnames=["filename", "peak_wavelength", "peak_absorbance"])
+    writer.writeheader()
+    writer.writerows(results)
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Chapter Summary}
+\label{sec:files-summary}
+
+File operations are central to scientific programming:
+
+\begin{itemize}
+    \item \textbf{Opening:} \py{with open(path, mode) as file:}
+    \item \textbf{Modes:} \py{"r"} read, \py{"w"} write, \py{"a"} append
+    \item \textbf{Reading:} \py{file.read()}, \py{file.readlines()}, iterate line by line
+    \item \textbf{Writing:} \py{file.write(text)}
+    \item \textbf{Paths:} Use \py{pathlib.Path} for cross-platform compatibility
+    \item \textbf{CSV:} Use the \py{csv} module, especially \py{DictReader}
+    \item \textbf{JSON:} Use \py{json.load()} and \py{json.dump()}
+\end{itemize}
+
+\begin{ponder}
+\begin{enumerate}
+    \item What's the difference between \py{"w"} and \py{"a"} modes?
+    \item Why should you always use \py{with} when opening files?
+    \item How would you read a CSV file that uses semicolons instead of commas?
+    \item What happens if you try to open a file that doesn't exist in \py{"r"} mode?
+\end{enumerate}
+\end{ponder}

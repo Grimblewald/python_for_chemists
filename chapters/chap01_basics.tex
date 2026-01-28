@@ -1,0 +1,622 @@
+% chap01_basics.tex - Variables, types, and expressions
+% ============================================================================
+
+\chapter{Python Basics}
+\label{chap:basics}
+
+With Python installed, let's learn the language. We call Python a ``programming language'' because, like English or German, it has vocabulary (words with specific meanings), grammar (rules for combining words), and syntax (rules for punctuation and structure). The difference is that Python is designed to be translated into instructions a computer can execute, while still being readable by humans. This is what makes programming accessible: you write something that looks vaguely like English, and the computer knows what to do.
+
+This chapter covers the fundamental building blocks: how to store values, what types of data exist, and how to combine them into \emph{expressions} (pieces of code that produce a value, like \py{2 + 3}). Everything else builds on this foundation.
+
+Open Python in interactive mode (type \shell{python} or \shell{python3} in your terminal). We'll experiment in the REPL first, then move to scripts.
+
+% ----------------------------------------------------------------------------
+\section{Python as a Calculator}
+\label{sec:calculator}
+
+At its simplest, Python is a calculator. Type an expression, get a result:
+
+\begin{lstlisting}
+>>> 2 + 3
+5
+>>> 10 - 4
+6
+>>> 7 * 8
+56
+>>> 15 / 4
+3.75
+\end{lstlisting}
+
+The four basic operations work as expected. A few notes on the syntax (the punctuation rules of the language):
+
+\begin{itemize}
+    \item \py{*} is multiplication (not $\times$, which isn't on your keyboard)
+    \item \py{/} is division (always gives a decimal result in Python 3)
+    \item Spaces around operators are optional but recommended for readability
+\end{itemize}
+
+\subsection{More Operations}
+
+Python has additional arithmetic operators:
+
+\begin{lstlisting}
+>>> 15 // 4      # integer division (floor division)
+3
+>>> 15 % 4       # modulo (remainder after division)
+3
+>>> 2 ** 10      # exponentiation (2 to the power of 10)
+1024
+\end{lstlisting}
+
+Integer division (\py{//}) discards the decimal part. Modulo (\py{\%}) gives the remainder. Exponentiation (\py{**}) raises a number to a power.
+
+\begin{labexample}
+Molarity calculation: You dissolved 5.85 grams of NaCl (molar mass 58.44 g/mol) in water and diluted to 500 mL. What's the concentration?
+
+\begin{lstlisting}
+>>> mass_g = 5.85
+>>> molar_mass = 58.44
+>>> volume_L = 0.5
+>>> concentration = mass_g / molar_mass / volume_L
+>>> concentration
+0.20020533881587955
+\end{lstlisting}
+
+About 0.2 M. We'll learn how to format this nicely soon.
+\end{labexample}
+
+\subsection{Order of Operations}
+
+Python follows standard mathematical precedence: parentheses first, then exponentiation, then multiplication/division, then addition/subtraction.
+
+\begin{lstlisting}
+>>> 2 + 3 * 4
+14
+>>> (2 + 3) * 4
+20
+>>> 2 ** 3 ** 2      # exponentiation is right-associative
+512
+>>> (2 ** 3) ** 2
+64
+\end{lstlisting}
+
+When in doubt, use parentheses. They make your intent clear and prevent mistakes.
+
+% ----------------------------------------------------------------------------
+\section{Variables and Assignment}
+\label{sec:variables}
+
+Typing numbers directly gets tedious. Variables let you store values and refer to them by name.
+
+\begin{lstlisting}
+>>> temperature = 298.15
+>>> pressure = 101325
+>>> temperature
+298.15
+>>> pressure
+101325
+\end{lstlisting}
+
+The \py{=} sign is assignment: it stores the value on the right in the name on the left. This is not a mathematical equation---it's an instruction to put a value somewhere.
+
+\begin{lstlisting}
+>>> x = 5
+>>> x = x + 1      # take x, add 1, store result back in x
+>>> x
+6
+\end{lstlisting}
+
+That second line would be nonsense in mathematics, but in programming it's common: update a variable based on its current value.
+
+\subsection{Naming Rules}
+
+Variable names must:
+\begin{itemize}
+    \item Start with a letter or underscore
+    \item Contain only letters, numbers, and underscores
+    \item Not be a Python keyword (like \py{if}, \py{for}, \py{class})
+\end{itemize}
+
+Valid names: \py{temperature}, \py{sample_1}, \py{\_private}, \py{CamelCase}, \py{my_class_of_thin}
+
+Invalid names: \py{1st_sample} (starts with number), \py{my-variable} (contains hyphen), \py{class} (keyword)
+
+\begin{tip}
+Python convention: use \py{lowercase_with_underscores} for variable names. Reserve \py{CamelCase} for class names (covered later). This isn't required, but following conventions makes your code easier for others to read. While you can use python keywords in variable names, you should not use them as a variable name e.g. \py{class = "something"} (bad) vs \py{my\_class = "something"} (fine). As you can see, with syntax highlighting enabled, you will at least get a warning that something is up, so don't worry about having to know all keywords in order to avoid them as variable names.
+\end{tip}
+
+\subsection{Meaningful Names}
+
+Compare:
+
+\begin{lstlisting}
+>>> a = 5.85
+>>> b = 58.44
+>>> c = 0.5
+>>> d = a / b / c
+\end{lstlisting}
+
+versus:
+
+\begin{lstlisting}
+>>> mass_g = 5.85
+>>> molar_mass = 58.44
+>>> volume_L = 0.5
+>>> concentration_M = mass_g / molar_mass / volume_L
+\end{lstlisting}
+
+Both calculate the same result, but the second version explains itself. Anyone reading it (including future you) understands what's happening.
+
+\begin{warning}
+Avoid single-letter variable names except in very short code blocks or when they match mathematical notation you're implementing. The characters you save aren't worth the confusion.
+\end{warning}
+
+% ----------------------------------------------------------------------------
+\section{Data Types}
+\label{sec:types}
+
+Not all data is the same. Numbers behave differently from text, and Python treats them differently. The kind of data a value holds is called its \emph{type}. Understanding types matters because operations that work on one type might not work on another---you can divide numbers, but you can't divide text.
+
+\subsection{Integers (int)}
+
+Whole numbers without decimal points:
+
+\begin{lstlisting}
+>>> count = 42
+>>> electrons = -1
+>>> avogadro = 602214076000000000000000
+>>> type(count)
+<class 'int'>
+\end{lstlisting}
+
+The \py{type()} function tells you what type a value is. You give it a value (or a variable containing a value), and it tells you the type. Python integers can be arbitrarily large---no overflow.
+
+\subsection{Floating-Point Numbers (float)}
+\label{subsec:floats}
+
+Numbers with decimal points:
+
+\begin{lstlisting}
+>>> pi = 3.14159
+>>> temperature = 298.15
+>>> tiny = 1.23e-10      # scientific notation: 1.23 times 10^-10
+>>> type(pi)
+<class 'float'>
+\end{lstlisting}
+
+Scientific notation uses \py{e} for ``times ten to the power of.'' So \py{1.23e-10} is $1.23 \times 10^{-10}$.
+
+\begin{warning}
+Floats have limited precision. They're stored in binary, and some decimal numbers can't be represented exactly:
+\begin{lstlisting}
+>>> 0.1 + 0.2
+0.30000000000000004
+\end{lstlisting}
+This isn't a Python bug---it's how computers work. For most scientific calculations, the error is negligible, as we don't collect data at the level of precision required for this to have an impact. Appropriate rounding should always cut off floating point errors, but be aware it exists as it may impact arithmetic on really small or really large numbers. For financial calculations, long iterative calculation chains or exact comparisons, you do need to mitigate. For example, you might use the \py{decimal} module.
+\end{warning}
+
+\subsection{Strings (str)}
+
+Text data is called a ``string''---think of it as a string of characters, like beads on a necklace. Strings are enclosed in quotes:
+
+\begin{lstlisting}
+>>> element = "Carbon"
+>>> symbol = 'C'          # single or double quotes both work
+>>> message = "It's alive!"   # use double quotes to include apostrophe
+>>> formula = 'H2O'
+>>> type(element)
+<class 'str'>
+\end{lstlisting}
+
+Strings can contain any characters. If your text contains single or double quotes, use the other kind of quote to delimit it, or escape with a backslash:
+
+\begin{lstlisting}
+>>> quote = "She said \"hello\""
+>>> quote
+'She said "hello"'
+\end{lstlisting}
+
+Multiline strings use triple quotes:
+
+\begin{lstlisting}
+>>> long_text = """This is a
+... multiline
+... string"""
+>>> print(long_text)
+This is a
+multiline
+string
+\end{lstlisting}
+
+\subsection{Booleans (bool)}
+
+True or false values:
+
+\begin{lstlisting}
+>>> is_reactive = True
+>>> is_stable = False
+>>> type(is_reactive)
+<class 'bool'>
+\end{lstlisting}
+
+Note the capitalization: \py{True} and \py{False}, not \py{true} or \py{TRUE}. Booleans are essential for making decisions in code (covered in the next chapter).
+
+\subsection{None}
+
+A special type representing ``no value'' or ``nothing'':
+
+\begin{lstlisting}
+>>> result = None
+>>> type(result)
+<class 'NoneType'>
+\end{lstlisting}
+
+You'll encounter \py{None} when a function doesn't return anything, or when you want to initialize a variable without giving it a real value yet.
+
+% ----------------------------------------------------------------------------
+\section{Type Checking}
+\label{sec:type-checking}
+
+Sometimes you need to verify what type a value is:
+
+\begin{lstlisting}
+>>> x = 42
+>>> type(x)
+<class 'int'>
+>>> type(x) == int
+True
+\end{lstlisting}
+
+The \py{isinstance()} function is often better---it handles inheritance (a concept we'll cover later):
+
+\begin{lstlisting}
+>>> isinstance(x, int)
+True
+>>> isinstance(x, float)
+False
+>>> isinstance(x, (int, float))    # check multiple types
+True
+\end{lstlisting}
+
+\subsection{Type Conversion}
+
+Convert between types using the type name as a function:
+
+\begin{lstlisting}
+>>> int(3.7)       # float to int (truncates, doesn't round)
+3
+>>> float(42)      # int to float
+42.0
+>>> str(42)        # int to string
+'42'
+>>> int("42")      # string to int
+42
+>>> float("3.14")  # string to float
+3.14
+\end{lstlisting}
+
+\begin{warning}
+Conversion can fail if the value doesn't make sense:
+\begin{lstlisting}
+>>> int("hello")
+ValueError: invalid literal for int() with base 10: 'hello'
+\end{lstlisting}
+You can't turn arbitrary text into a number. Well, you can using \py{ord}, e.g. \py{ord("a")}, which equals 97. Ord returns a number representing the unicode code of a specified character. but this is obviously different. 
+\end{warning}
+
+% ----------------------------------------------------------------------------
+\section{Operators and Expressions}
+\label{sec:operators}
+
+You've seen arithmetic operators. Python has several other types.
+
+\subsection{Comparison Operators}
+
+These compare values and return booleans:
+
+\begin{lstlisting}
+>>> 5 > 3
+True
+>>> 5 < 3
+False
+>>> 5 == 5      # equality (note: two equals signs)
+True
+>>> 5 != 3      # not equal
+True
+>>> 5 >= 5      # greater than or equal
+True
+>>> 5 <= 4      # less than or equal
+False
+\end{lstlisting}
+
+\begin{warning}
+A common mistake: using \py{=} (assignment) when you mean \py{==} (comparison). They're very different:
+\begin{lstlisting}
+>>> x = 5     # assigns 5 to x
+>>> x == 5    # asks "is x equal to 5?"
+True
+\end{lstlisting}
+\end{warning}
+
+\subsection{Logical Operators}
+
+Combine boolean values:
+
+\begin{lstlisting}
+>>> True and False
+False
+>>> True or False
+True
+>>> not True
+False
+\end{lstlisting}
+
+\py{and} is true only if both sides are true. \py{or} is true if at least one side is true. \py{not} inverts the value.
+
+\begin{lstlisting}
+>>> temperature = 298
+>>> pressure = 101325
+>>> is_standard_conditions = (temperature == 298) and (pressure == 101325)
+>>> is_standard_conditions
+True
+\end{lstlisting}
+
+\subsection{String Operators}
+
+Strings have their own operators:
+
+\begin{lstlisting}
+>>> "Hello" + " " + "World"    # concatenation
+'Hello World'
+>>> "Na" * 8                   # repetition
+'NaNaNaNaNaNaNaNa'
+>>> "H" in "Hello"             # membership test
+True
+>>> "x" in "Hello"
+False
+\end{lstlisting}
+
+\subsection{Compound Assignment}
+
+Shortcuts for updating a variable:
+
+\begin{lstlisting}
+>>> x = 10
+>>> x += 5      # same as x = x + 5
+>>> x
+15
+>>> x -= 3      # same as x = x - 3
+>>> x
+12
+>>> x *= 2      # same as x = x * 2
+>>> x
+24
+\end{lstlisting}
+
+These work with \py{+=}, \py{-=}, \py{*=}, \py{/=}, and others.
+
+% ----------------------------------------------------------------------------
+\section{Comments}
+\label{sec:comments}
+
+Comments are notes in your code that Python ignores. They explain what your code does (or why).
+
+\begin{lstlisting}
+# This is a comment - Python ignores it
+mass = 5.85  # grams of NaCl
+
+# Calculate concentration in mol/L
+# Using M = n/V where n = mass/molar_mass
+molar_mass = 58.44  # g/mol for NaCl
+volume = 0.5        # liters
+concentration = mass / molar_mass / volume
+\end{lstlisting}
+
+Everything after \py{#} on a line is a comment.
+
+\begin{tip}
+Good comments explain \emph{why}, not \emph{what}. The code itself shows what's happening; comments should clarify the reasoning:
+
+\begin{lstlisting}
+# Bad comment: adds 1 to x
+x = x + 1
+
+# Good comment: adjust for 1-based indexing in the output file
+x = x + 1
+\end{lstlisting}
+\end{tip}
+
+% ----------------------------------------------------------------------------
+\section{Formatted Output with f-strings}
+\label{sec:fstrings}
+
+The \py{print()} function displays output:
+
+\begin{lstlisting}
+>>> print("Hello")
+Hello
+>>> print(42)
+42
+>>> print("The answer is", 42)
+The answer is 42
+\end{lstlisting}
+
+But what if you want to include variable values in a sentence? f-strings (formatted string literals) make this easy:
+
+\begin{lstlisting}
+>>> temperature = 298.15
+>>> print(f"Temperature: {temperature} K")
+Temperature: 298.15 K
+\end{lstlisting}
+
+The \py{f} before the opening quote marks it as an f-string. Inside, curly braces \py{\{\}} contain expressions that get evaluated and inserted:
+
+\begin{lstlisting}
+>>> name = "Carbon"
+>>> atomic_number = 6
+>>> mass = 12.011
+>>> print(f"{name} has atomic number {atomic_number}")
+Carbon has atomic number 6
+\end{lstlisting}
+
+\subsection{Formatting Numbers}
+
+f-strings can format numbers with precision:
+
+\begin{lstlisting}
+>>> pi = 3.141592653589793
+>>> print(f"Pi is approximately {pi:.2f}")
+Pi is approximately 3.14
+>>> print(f"Pi is approximately {pi:.4f}")
+Pi is approximately 3.1416
+\end{lstlisting}
+
+The \py{:.2f} means ``format as a float with 2 decimal places.'' Common format specifiers:
+
+\begin{itemize}
+    \item \py{:.3f} --- 3 decimal places
+    \item \py{:.2e} --- scientific notation with 2 decimal places
+    \item \py{:>10} --- right-align in 10 characters
+    \item \py{:,} --- add thousands separators
+\end{itemize}
+
+\begin{lstlisting}
+>>> avogadro = 6.022e23
+>>> print(f"Avogadro's number: {avogadro:.3e}")
+Avogadro's number: 6.022e+23
+>>> population = 8000000000
+>>> print(f"World population: {population:,}")
+World population: 8,000,000,000
+\end{lstlisting}
+
+\begin{labexample}
+Reporting a concentration with appropriate precision:
+\begin{lstlisting}
+>>> concentration = 0.20020533881587955
+>>> print(f"Concentration: {concentration:.3f} M")
+Concentration: 0.200 M
+>>> print(f"Concentration: {concentration:.2e} mol/L")
+Concentration: 2.00e-01 mol/L
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Getting User Input}
+\label{sec:input}
+
+The \py{input()} function asks the user to type something:
+
+\begin{lstlisting}
+>>> name = input("Enter your name: ")
+Enter your name: Alice
+>>> print(f"Hello, {name}!")
+Hello, Alice!
+\end{lstlisting}
+
+\begin{warning}
+\py{input()} always returns a string, even if the user types a number:
+\begin{lstlisting}
+>>> age = input("Enter your age: ")
+Enter your age: 25
+>>> type(age)
+<class 'str'>
+>>> age + 1
+TypeError: can only concatenate str (not "int") to str
+\end{lstlisting}
+Convert to the right type:
+\begin{lstlisting}
+>>> age = int(input("Enter your age: "))
+Enter your age: 25
+>>> age + 1
+26
+\end{lstlisting}
+\end{warning}
+
+For scientific work, you'll rarely use \py{input()}---data comes from files instead. But it's useful for quick interactive scripts, and some who read this will find use for it. 
+
+% ----------------------------------------------------------------------------
+\section{Writing Your First Script}
+\label{sec:first-script}
+
+Let's combine what we've learned into a script. Create a file called \filepath{molarity.py}. You could do this any number of ways; easiest is likely to open your editor of choice and save a file of this name in an appropriate location (recall hygiene rules from Chapter 0):
+
+\begin{lstlisting}
+# molarity.py - Calculate solution concentration
+# This script calculates molarity from mass, molar mass, and volume.
+
+# Input values
+mass_g = 5.85           # mass of solute in grams
+molar_mass = 58.44      # molar mass in g/mol (NaCl)
+volume_L = 0.5          # solution volume in liters
+
+# Calculate moles and concentration
+moles = mass_g / molar_mass
+concentration_M = moles / volume_L
+
+# Display results
+print("Molarity Calculation")
+print("=" * 30)
+print(f"Mass of solute:    {mass_g:.2f} g")
+print(f"Molar mass:        {molar_mass:.2f} g/mol")
+print(f"Volume:            {volume_L:.3f} L")
+print(f"Moles of solute:   {moles:.4f} mol")
+print(f"Concentration:     {concentration_M:.3f} M")
+\end{lstlisting}
+
+Ensuring you've used \py{cd}, meaning "change directory", to navigate your terminal into the right path. Then run your script by simply entering:
+
+\begin{lstlisting}[style=shellstyle]
+python molarity.py
+\end{lstlisting}
+
+Output:
+\begin{lstlisting}[style=outputstyle]
+Molarity Calculation
+==============================
+Mass of solute:    5.85 g
+Molar mass:        58.44 g/mol
+Volume:            0.500 L
+Moles of solute:   0.1001 mol
+Concentration:     0.200 M
+\end{lstlisting}
+
+Notice how the script:
+\begin{itemize}
+    \item Starts with a comment explaining its purpose
+    \item Uses descriptive variable names
+    \item Separates input, calculation, and output sections
+    \item Formats numbers appropriately for the context
+\end{itemize}
+
+This is good scientific programming style. 
+
+As a personal challenge, try to make an interactive molarity calculator by combining what we have covered so far, such as the use of \py{input()}.
+
+% ----------------------------------------------------------------------------
+\section{Chapter Summary}
+\label{sec:basics-summary}
+
+You've learned the fundamentals:
+
+\begin{itemize}
+    \item \textbf{Arithmetic:} \py{+}, \py{-}, \py{*}, \py{/}, \py{//}, \py{\%}, \py{**}
+    \item \textbf{Variables:} store values with meaningful names using \py{=}
+    \item \textbf{Types:} \py{int}, \py{float}, \py{str}, \py{bool}, \py{None}
+    \item \textbf{Type checking:} \py{type()}, \py{isinstance()}
+    \item \textbf{Type conversion:} \py{int()}, \py{float()}, \py{str()}
+    \item \textbf{Comparisons:} \py{==}, \py{!=}, \py{<}, \py{>}, \py{<=}, \py{>=}
+    \item \textbf{Logical operators:} \py{and}, \py{or}, \py{not}
+    \item \textbf{Comments:} \py{# this is ignored}
+    \item \textbf{f-strings:} \py{f"Value: \{x:.2f\}"}
+    \item \textbf{Output:} \py{print()}
+    \item \textbf{Input:} \py{input()} (returns string)
+\end{itemize}
+
+\begin{ponder}
+\begin{enumerate}
+    \item Why does Python have both \py{/} and \py{//} for division? When would you use each?
+    \item What happens if you try to use a variable before assigning it a value?
+    \item Why is \py{0.1 + 0.2 != 0.3}? Is this a problem for scientific calculations?
+    \item What's the difference between \py{print(x)} and just typing \py{x} in the REPL?
+\end{enumerate}
+\end{ponder}

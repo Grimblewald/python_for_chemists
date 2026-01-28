@@ -1,0 +1,474 @@
+% chap09_pandas.tex - Data analysis with Pandas
+% ============================================================================
+
+\chapter{Pandas: Data Analysis}
+\label{chap:pandas}
+
+Real scientific data comes with labels, missing values, and mixed types. Pandas provides the DataFrame---a powerful table structure that handles these complexities. If NumPy is like a matrix, Pandas is like a spreadsheet with superpowers. Install pandas via:
+
+\begin{lstlisting}
+pip install pandas
+\end{lstlisting}
+
+
+% ----------------------------------------------------------------------------
+\section{Why Pandas?}
+\label{sec:why-pandas}
+
+NumPy arrays are great for homogeneous numerical data. But experimental data often includes:
+
+\begin{itemize}
+    \item Column names (wavelength, absorbance, sample\_id)
+    \item Mixed types (numbers, text, dates)
+    \item Missing values
+    \item Row labels (sample names, timestamps)
+\end{itemize}
+
+Pandas handles all of this with two main structures: \py{Series} (1D) and \py{DataFrame} (2D table).
+
+\begin{lstlisting}
+import pandas as pd
+import numpy as np
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Series}
+\label{sec:series}
+
+A \py{Series} is a labeled one-dimensional array:
+
+\begin{lstlisting}
+# From a list
+concentrations = pd.Series([0.1, 0.2, 0.3, 0.4])
+print(concentrations)
+# 0    0.1
+# 1    0.2
+# 2    0.3
+# 3    0.4
+# dtype: float64
+
+# With custom labels
+conc = pd.Series([0.1, 0.2, 0.3], index=["low", "medium", "high"])
+print(conc["medium"])  # 0.2
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{DataFrames}
+\label{sec:dataframes}
+
+A \py{DataFrame} is a labeled two-dimensional table---the workhorse of Pandas:
+
+\begin{lstlisting}
+# From a dictionary
+data = {
+    "sample": ["A", "B", "C", "D"],
+    "concentration": [0.1, 0.2, 0.3, 0.4],
+    "absorbance": [0.12, 0.25, 0.35, 0.48]
+}
+df = pd.DataFrame(data)
+print(df)
+#   sample  concentration  absorbance
+# 0      A            0.1        0.12
+# 1      B            0.2        0.25
+# 2      C            0.3        0.35
+# 3      D            0.4        0.48
+\end{lstlisting}
+
+\subsection{Reading Data from Files}
+
+\begin{lstlisting}
+# CSV (most common)
+df = pd.read_csv("data.csv")
+
+# Excel
+df = pd.read_excel("data.xlsx", sheet_name="Sheet1")
+
+# With options
+df = pd.read_csv("data.csv",
+                 sep=";",           # semicolon delimiter
+                 skiprows=2,        # skip header rows
+                 na_values=["NA", "-999"])  # missing value codes
+\end{lstlisting}
+
+\subsection{Quick Look at Data}
+
+\begin{lstlisting}
+df.head()       # first 5 rows
+df.tail(3)      # last 3 rows
+df.shape        # (rows, columns)
+df.columns      # column names
+df.dtypes       # data types
+df.info()       # summary of structure
+df.describe()   # statistics for numeric columns
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Selecting Data}
+\label{sec:selecting}
+
+\subsection{Selecting Columns}
+
+\begin{lstlisting}
+# Single column (returns Series)
+df["concentration"]
+
+# Multiple columns (returns DataFrame)
+df[["sample", "concentration"]]
+
+# As attribute (only for simple column names)
+df.concentration
+\end{lstlisting}
+
+\subsection{Selecting Rows}
+
+\begin{lstlisting}
+# By position
+df.iloc[0]      # first row
+df.iloc[0:3]    # first three rows
+df.iloc[[0, 2]] # rows 0 and 2
+
+# By label
+df.loc[0]       # row with label 0
+df.loc[0:2]     # rows with labels 0, 1, 2 (inclusive!)
+
+# With conditions (boolean indexing)
+df[df["concentration"] > 0.2]
+df[df["sample"].isin(["A", "C"])]
+\end{lstlisting}
+
+\subsection{Selecting Rows and Columns}
+
+\begin{lstlisting}
+# By position: df.iloc[rows, columns]
+df.iloc[0:2, 1:3]    # first 2 rows, columns 1-2
+
+# By label: df.loc[rows, columns]
+df.loc[0:2, "concentration":"absorbance"]
+
+# Mixed
+df.loc[df["concentration"] > 0.2, ["sample", "absorbance"]]
+\end{lstlisting}
+
+\begin{tip}
+Use \py{.loc} for label-based indexing (including boolean conditions) and \py{.iloc} for position-based indexing. Mixing them up causes confusion.
+\end{tip}
+
+% ----------------------------------------------------------------------------
+\section{Modifying Data}
+\label{sec:modifying}
+
+\subsection{Adding Columns}
+
+\begin{lstlisting}
+# New column from calculation
+df["transmittance"] = 10 ** (-df["absorbance"]) * 100
+
+# New column from function
+df["log_conc"] = np.log10(df["concentration"])
+\end{lstlisting}
+
+\subsection{Modifying Values}
+
+\begin{lstlisting}
+# Set specific cells
+df.loc[0, "concentration"] = 0.15
+
+# Set based on condition
+df.loc[df["absorbance"] > 0.4, "quality"] = "high"
+
+# Apply function to column
+df["sample"] = df["sample"].str.lower()
+\end{lstlisting}
+
+\subsection{Renaming}
+
+\begin{lstlisting}
+df.rename(columns={"concentration": "conc_M"}, inplace=True)
+\end{lstlisting}
+
+\subsection{Dropping}
+
+Apply the following then inspect your dataframe.
+
+\begin{lstlisting}
+# Drop columns
+df.drop(columns=["transmittance"], inplace=True)
+
+# Drop rows
+df.drop(index=[0, 1], inplace=True)
+\end{lstlisting}
+
+What has happed to the data?
+
+% ----------------------------------------------------------------------------
+\section{Handling Missing Data}
+\label{sec:missing}
+
+Missing values appear as \py{NaN} (Not a Number):
+
+\begin{lstlisting}
+# Check for missing values
+df.isna()           # boolean mask
+df.isna().sum()     # count per column
+
+# Drop rows with any missing values
+df.dropna()
+
+# Drop rows where specific columns are missing
+df.dropna(subset=["absorbance"])
+
+# Fill missing values
+df.fillna(0)                    # fill with 0
+df.fillna(df.mean())            # fill with column means
+df.fillna(method="ffill")       # forward fill
+\end{lstlisting}
+
+\begin{labexample}
+Handling missing readings in experimental data:
+
+\begin{lstlisting}
+# Data with missing values (-999 indicates error)
+data = pd.read_csv("measurements.csv")
+data.replace(-999, np.nan, inplace=True)
+
+# Report missing data
+missing = data.isna().sum()
+print(f"Missing values:\n{missing}")
+
+# Remove rows with missing absorbance
+clean = data.dropna(subset=["absorbance"])
+print(f"Kept {len(clean)} of {len(data)} rows")
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Aggregation and Grouping}
+\label{sec:aggregation}
+
+\subsection{Basic Statistics}
+
+\begin{lstlisting}
+df["absorbance"].mean()
+df["absorbance"].std()
+df["absorbance"].min()
+df["absorbance"].max()
+df["concentration"].sum()
+df["sample"].value_counts()  # count unique values
+\end{lstlisting}
+
+\subsection{Group By}
+
+Split data into groups and compute statistics:
+
+\begin{lstlisting}
+# Sample data
+experiments = pd.DataFrame({
+    "treatment": ["A", "A", "B", "B", "A", "B"],
+    "replicate": [1, 2, 1, 2, 3, 3],
+    "yield": [23, 25, 31, 33, 24, 35]
+})
+
+# Group and aggregate
+grouped = experiments.groupby("treatment")
+print(grouped["yield"].mean())
+# treatment
+# A    24.0
+# B    33.0
+
+# Multiple aggregations
+experiments.groupby("treatment")["yield"].agg(["mean", "std", "count"])
+\end{lstlisting}
+
+\begin{labexample}
+Analyzing replicate measurements:
+
+\begin{lstlisting}
+data = pd.DataFrame({
+    "sample": ["S1", "S1", "S1", "S2", "S2", "S2"],
+    "absorbance": [0.45, 0.47, 0.44, 0.82, 0.85, 0.81]
+})
+
+summary = data.groupby("sample")["absorbance"].agg(
+    mean="mean",
+    std="std",
+    n="count"
+)
+summary["sem"] = summary["std"] / np.sqrt(summary["n"])
+print(summary)
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Sorting}
+\label{sec:sorting}
+
+\begin{lstlisting}
+# Sort by column
+df.sort_values("absorbance")
+df.sort_values("absorbance", ascending=False)
+
+# Sort by multiple columns
+df.sort_values(["treatment", "concentration"])
+
+# Sort index
+df.sort_index()
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Merging DataFrames}
+\label{sec:merging}
+
+Combine data from multiple sources:
+
+\begin{lstlisting}
+# Sample data
+samples = pd.DataFrame({
+    "sample_id": ["A", "B", "C"],
+    "concentration": [0.1, 0.2, 0.3]
+})
+
+metadata = pd.DataFrame({
+    "sample_id": ["A", "B", "D"],
+    "temperature": [25, 30, 25]
+})
+
+# Merge on common column
+merged = pd.merge(samples, metadata, on="sample_id", how="inner")
+# Only keeps rows present in both (A, B)
+
+# Different join types
+pd.merge(samples, metadata, how="left")   # keep all from samples
+pd.merge(samples, metadata, how="right")  # keep all from metadata
+pd.merge(samples, metadata, how="outer")  # keep all from both
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Pivot Tables}
+\label{sec:pivot}
+
+Reshape data for analysis:
+
+\begin{lstlisting}
+data = pd.DataFrame({
+    "date": ["Mon", "Mon", "Tue", "Tue"],
+    "sample": ["A", "B", "A", "B"],
+    "value": [1.2, 2.3, 1.4, 2.5]
+})
+
+# Pivot: rows=dates, columns=samples, values=value
+pivot = data.pivot(index="date", columns="sample", values="value")
+#        A    B
+# date
+# Mon  1.2  2.3
+# Tue  1.4  2.5
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Applying Functions}
+\label{sec:applying}
+
+\begin{lstlisting}
+# Apply to entire column
+df["absorbance"].apply(lambda x: x * 1000)  # convert to mAU
+
+# Apply to each row
+def classify_sample(row):
+    if row["absorbance"] > 0.5:
+        return "high"
+    return "low"
+
+df["category"] = df.apply(classify_sample, axis=1)
+
+# Vectorized operations (faster)
+df["category"] = np.where(df["absorbance"] > 0.5, "high", "low")
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Saving Data}
+\label{sec:saving}
+
+\begin{lstlisting}
+# To CSV
+df.to_csv("results.csv", index=False)
+
+# To Excel
+df.to_excel("results.xlsx", sheet_name="Data", index=False)
+
+# Multiple sheets
+with pd.ExcelWriter("report.xlsx") as writer:
+    raw_data.to_excel(writer, sheet_name="Raw")
+    summary.to_excel(writer, sheet_name="Summary")
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{A Complete Analysis Example}
+\label{sec:pandas-example}
+
+\begin{lstlisting}
+import pandas as pd
+import numpy as np
+
+# Load calibration data
+calib = pd.read_csv("calibration.csv")
+print("Calibration data:")
+print(calib.head())
+
+# Check for missing values
+if calib.isna().any().any():
+    print("Warning: missing values found")
+    calib = calib.dropna()
+
+# Calculate statistics by standard
+stats = calib.groupby("standard_id")["absorbance"].agg(
+    ["mean", "std", "count"]
+)
+
+# Load unknown samples
+unknowns = pd.read_csv("unknowns.csv")
+
+# Calculate concentration from calibration curve
+# (assuming linear: A = m*C + b, pre-calculated)
+slope = 1.5
+intercept = 0.02
+unknowns["concentration"] = (unknowns["absorbance"] - intercept) / slope
+
+# Add quality flags
+unknowns["in_range"] = (
+    (unknowns["concentration"] >= calib["concentration"].min()) &
+    (unknowns["concentration"] <= calib["concentration"].max())
+)
+
+# Save results
+unknowns.to_csv("results.csv", index=False)
+print(f"\nProcessed {len(unknowns)} samples")
+print(f"Samples in calibration range: {unknowns['in_range'].sum()}")
+\end{lstlisting}
+
+\begin{tip}
+As for numpy, you are highly encourage to find and peruse the documentation for pandas in order to find out more about it's features. For example, it offers plotting funcitonality, which can be useful but is not essential to cover as we will cover plotting in detail next.
+\end{tip}
+
+% ----------------------------------------------------------------------------
+\section{Chapter Summary}
+\label{sec:pandas-summary}
+
+Pandas makes data analysis manageable:
+
+\begin{itemize}
+    \item \textbf{DataFrame:} Labeled 2D table with mixed types
+    \item \textbf{Reading:} \py{pd.read\_csv()}, \py{pd.read\_excel()}
+    \item \textbf{Selection:} \py{df["col"]}, \py{df.loc[]}, \py{df.iloc[]}
+    \item \textbf{Missing data:} \py{df.isna()}, \py{df.dropna()}, \py{df.fillna()}
+    \item \textbf{Grouping:} \py{df.groupby("col").agg()}
+    \item \textbf{Merging:} \py{pd.merge(df1, df2, on="key")}
+    \item \textbf{Saving:} \py{df.to\_csv()}, \py{df.to\_excel()}
+\end{itemize}
+
+\begin{ponder}
+\begin{enumerate}
+    \item What's the difference between \py{df.loc[0]} and \py{df.iloc[0]}?
+    \item How would you find rows where column A is greater than 5 AND column B equals ``yes''?
+    \item When would you use \py{groupby()} vs. just calculating \py{.mean()} on a column?
+    \item How do the different merge types (inner, left, right, outer) differ?
+\end{enumerate}
+\end{ponder}

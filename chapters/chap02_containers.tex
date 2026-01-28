@@ -1,0 +1,670 @@
+% chap02_containers.tex - Lists, dicts, sets, and tuples
+% ============================================================================
+
+\chapter{Container Types}
+\label{chap:containers}
+
+So far, each variable holds one value. But scientific data comes in groups: a series of measurements, a collection of samples, a table of properties. Python's container types hold multiple values in a single variable. This chapter covers the four main ones: lists, tuples, dictionaries, and sets.
+
+% ----------------------------------------------------------------------------
+\section{Lists}
+\label{sec:lists}
+
+A list is an ordered collection of items. Create one with square brackets:
+
+\begin{lstlisting}
+>>> temperatures = [20.1, 21.3, 19.8, 22.0, 20.5]
+>>> temperatures
+[20.1, 21.3, 19.8, 22.0, 20.5]
+>>> elements = ["H", "He", "Li", "Be", "B"]
+>>> elements
+['H', 'He', 'Li', 'Be', 'B']
+\end{lstlisting}
+
+Lists can contain any type of data, and items don't have to be the same type (though they usually are):
+
+\begin{lstlisting}
+>>> mixed = [1, "hello", 3.14, True]
+>>> mixed
+[1, 'hello', 3.14, True]
+\end{lstlisting}
+
+\subsection{Indexing}
+
+Access individual items by position using square brackets. The position number is called the \emph{index}. Python uses zero-based indexing---the first item is at index 0, not index 1. This is a common convention in programming (though not universal), so get used to it:
+
+\begin{lstlisting}
+>>> elements = ["H", "He", "Li", "Be", "B"]
+>>> elements[0]       # first item
+'H'
+>>> elements[1]       # second item
+'He'
+>>> elements[4]       # fifth item (last in this list)
+'B'
+>>> elements[-1]      # last item (negative indexing)
+'B'
+>>> elements[-2]      # second to last
+'Be'
+\end{lstlisting}
+
+\begin{warning}
+Accessing an index that doesn't exist causes an error:
+\begin{lstlisting}
+>>> elements[10]
+IndexError: list index out of range
+\end{lstlisting}
+Always check your list length if you're unsure.
+\end{warning}
+
+\subsection{Slicing}
+
+Extract a sublist using slice notation \py{[start:stop]}:
+
+\begin{lstlisting}
+>>> numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+>>> numbers[2:5]      # items from index 2 up to (not including) 5
+[2, 3, 4]
+>>> numbers[:4]       # from beginning to index 4
+[0, 1, 2, 3]
+>>> numbers[6:]       # from index 6 to end
+[6, 7, 8, 9]
+>>> numbers[::2]      # every second item (step of 2)
+[0, 2, 4, 6, 8]
+>>> numbers[::-1]     # reversed
+[9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+\end{lstlisting}
+
+The pattern is \py{[start:stop:step]}. Any part can be omitted:
+\begin{itemize}
+    \item Omit \py{start}: Defaults to begin at 0
+    \item Omit \py{stop}: Defaults to go to the end
+    \item Omit \py{step}: Defaults to use step of 1
+\end{itemize}
+
+\begin{note}
+The \py{stop} index is exclusive---the slice includes items up to but not including that index. This feels odd at first but makes arithmetic cleaner: \py{numbers[0:5]} contains exactly 5 items.
+\end{note}
+
+\begin{ponder}
+If we have some list \py{numbers}, we get every value back if we use \py{numbers[0:-1:1]}. Why does \py{numbers[::-1]} reverse this list?
+\end{ponder}
+
+\subsection{List Length}
+
+The \py{len()} function returns the number of items:
+
+\begin{lstlisting}
+>>> elements = ["H", "He", "Li", "Be", "B"]
+>>> len(elements)
+5
+>>> len([])           # empty list
+0
+\end{lstlisting}
+
+\subsection{Modifying Lists}
+
+Lists are \emph{mutable}, meaning you can change them after creation. (``Mutable'' comes from the same root as ``mutation''---things that can change.) You can modify individual items, add new ones, or remove existing ones.
+
+\textbf{Change an item:}
+\begin{lstlisting}
+>>> temps = [20.0, 21.0, 22.0]
+>>> temps[1] = 21.5
+>>> temps
+[20.0, 21.5, 22.0]
+\end{lstlisting}
+
+\textbf{Add items:}
+
+Here we'll use \emph{methods}---functions that belong to a specific value. You call them using a dot: \py{temps.append(23.0)} means ``call the append function that belongs to temps.'' Methods are actions that the value knows how to perform on itself.
+
+\begin{lstlisting}
+>>> temps.append(23.0)        # add to end
+>>> temps
+[20.0, 21.5, 22.0, 23.0]
+>>> temps.insert(0, 19.0)     # insert at position 0
+>>> temps
+[19.0, 20.0, 21.5, 22.0, 23.0]
+>>> temps.extend([24.0, 25.0])  # add multiple items
+>>> temps
+[19.0, 20.0, 21.5, 22.0, 23.0, 24.0, 25.0]
+\end{lstlisting}
+
+\textbf{Remove items:}
+\begin{lstlisting}
+>>> temps.pop()               # remove and return last item
+25.0
+>>> temps
+[19.0, 20.0, 21.5, 22.0, 23.0, 24.0]
+>>> temps.pop(0)              # remove and return item at index 0
+19.0
+>>> temps
+[20.0, 21.5, 22.0, 23.0, 24.0]
+>>> temps.remove(21.5)        # remove first occurrence of value
+>>> temps
+[20.0, 22.0, 23.0, 24.0]
+\end{lstlisting}
+
+\begin{warning}
+\py{append()} and \py{extend()} look similar but differ:
+\begin{lstlisting}
+>>> a = [1, 2, 3]
+>>> a.append([4, 5])      # adds the list as one item
+>>> a
+[1, 2, 3, [4, 5]]
+>>> b = [1, 2, 3]
+>>> b.extend([4, 5])      # adds each item individually
+>>> b
+[1, 2, 3, 4, 5]
+\end{lstlisting}
+\end{warning}
+
+\subsection{List Operations}
+
+\begin{lstlisting}
+>>> [1, 2, 3] + [4, 5, 6]     # concatenation
+[1, 2, 3, 4, 5, 6]
+>>> [1, 2] * 3                 # repetition
+[1, 2, 1, 2, 1, 2]
+>>> 3 in [1, 2, 3, 4, 5]      # membership test
+True
+>>> 10 in [1, 2, 3, 4, 5]
+False
+\end{lstlisting}
+
+\subsection{Useful List Methods}
+
+\begin{lstlisting}
+>>> numbers = [3, 1, 4, 1, 5, 9, 2, 6]
+>>> numbers.count(1)          # how many 1s?
+2
+>>> numbers.index(5)          # position of first 5
+4
+>>> numbers.sort()            # sort in place
+>>> numbers
+[1, 1, 2, 3, 4, 5, 6, 9]
+>>> numbers.reverse()         # reverse in place
+>>> numbers
+[9, 6, 5, 4, 3, 2, 1, 1]
+\end{lstlisting}
+
+For a sorted copy without modifying the original, use \py{sorted()}:
+
+\begin{lstlisting}
+>>> original = [3, 1, 4, 1, 5]
+>>> sorted_copy = sorted(original)
+>>> sorted_copy
+[1, 1, 3, 4, 5]
+>>> original                  # unchanged
+[3, 1, 4, 1, 5]
+\end{lstlisting}
+
+\begin{labexample}
+Processing a list of absorbance measurements:
+\begin{lstlisting}
+>>> absorbances = [0.452, 0.487, 0.523, 0.478, 0.501]
+>>> print(f"Number of measurements: {len(absorbances)}")
+Number of measurements: 5
+>>> print(f"First reading: {absorbances[0]}")
+First reading: 0.452
+>>> print(f"Last reading: {absorbances[-1]}")
+Last reading: 0.501
+>>> print(f"Min: {min(absorbances)}, Max: {max(absorbances)}")
+Min: 0.452, Max: 0.523
+>>> print(f"Average: {sum(absorbances) / len(absorbances):.3f}")
+Average: 0.488
+\end{lstlisting}
+The built-in functions \py{min()}, \py{max()}, and \py{sum()} work on lists of numbers.
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Tuples}
+\label{sec:tuples}
+
+A tuple is like a list, but \emph{immutable}---once created, you can't change it. (``Immutable'' is the opposite of mutable: it cannot be mutated or changed.) This might seem like a limitation, but it's often useful. Create tuples with parentheses:
+
+\begin{lstlisting}
+>>> coordinates = (3.5, 2.1, 7.8)
+>>> coordinates
+(3.5, 2.1, 7.8)
+>>> rgb = (255, 128, 0)
+>>> rgb
+(255, 128, 0)
+\end{lstlisting}
+
+Access items the same way as lists:
+
+\begin{lstlisting}
+>>> coordinates[0]
+3.5
+>>> coordinates[1:]
+(2.1, 7.8)
+>>> len(coordinates)
+3
+\end{lstlisting}
+
+But you cannot modify them:
+
+\begin{lstlisting}
+>>> coordinates[0] = 4.0
+TypeError: 'tuple' object does not support item assignment
+\end{lstlisting}
+
+\subsection{Why Use Tuples?}
+
+If tuples are just restricted lists, why bother? Several reasons:
+
+\begin{enumerate}
+    \item \textbf{Intent:} A tuple signals that the data shouldn't change. Coordinates of a point, RGB values of a color---these are fixed groupings.
+    \item \textbf{Dictionary keys:} Tuples can be dictionary keys; lists cannot (we'll see why soon).
+    \item \textbf{Performance:} Tuples are slightly faster and use less memory (rarely matters in practice).
+    \item \textbf{Unpacking:} Tuples are often used for returning multiple values from functions.
+\end{enumerate}
+
+\subsection{Tuple Packing and Unpacking}
+
+Python lets you assign multiple variables at once:
+
+\begin{lstlisting}
+>>> point = (3.5, 2.1, 7.8)
+>>> x, y, z = point           # unpacking
+>>> x
+3.5
+>>> y
+2.1
+>>> z
+7.8
+\end{lstlisting}
+
+This also works without explicit parentheses:
+
+\begin{lstlisting}
+>>> a, b = 1, 2               # tuple packing on right, unpacking on left
+>>> a
+1
+>>> b
+2
+>>> a, b = b, a               # swap values!
+>>> a
+2
+>>> b
+1
+\end{lstlisting}
+
+\begin{note}
+A single-element tuple needs a trailing comma:
+\begin{lstlisting}
+>>> not_a_tuple = (42)        # just a number in parentheses
+>>> type(not_a_tuple)
+<class 'int'>
+>>> actual_tuple = (42,)      # trailing comma makes it a tuple
+>>> type(actual_tuple)
+<class 'tuple'>
+\end{lstlisting}
+\end{note}
+
+% ----------------------------------------------------------------------------
+\section{Dictionaries}
+\label{sec:dicts}
+
+A dictionary stores key-value pairs. Instead of accessing items by position, you access them by name:
+
+\begin{lstlisting}
+>>> element = {"name": "Carbon", "symbol": "C", "atomic_number": 6}
+>>> element["name"]
+'Carbon'
+>>> element["atomic_number"]
+6
+\end{lstlisting}
+
+Create dictionaries with curly braces. Each entry has a key, a colon, and a value. Keys are typically strings, but can be any immutable type.
+
+\subsection{Adding and Modifying}
+
+\begin{lstlisting}
+>>> element["mass"] = 12.011      # add new key-value pair
+>>> element
+{'name': 'Carbon', 'symbol': 'C', 'atomic_number': 6, 'mass': 12.011}
+>>> element["mass"] = 12.0        # modify existing value
+>>> element["mass"]
+12.0
+\end{lstlisting}
+
+\subsection{Accessing Values Safely}
+
+Accessing a missing key raises an error:
+
+\begin{lstlisting}
+>>> element["electrons"]
+KeyError: 'electrons'
+\end{lstlisting}
+
+Use \py{.get()} to provide a default instead:
+
+\begin{lstlisting}
+>>> element.get("electrons")          # returns None if missing
+>>> element.get("electrons", "unknown")  # returns "unknown" if missing
+'unknown'
+>>> element.get("name", "unknown")    # returns actual value if present
+'Carbon'
+\end{lstlisting}
+
+Check if a key exists:
+
+\begin{lstlisting}
+>>> "name" in element
+True
+>>> "electrons" in element
+False
+\end{lstlisting}
+
+\subsection{Dictionary Methods}
+
+\begin{lstlisting}
+>>> element.keys()            # all keys
+dict_keys(['name', 'symbol', 'atomic_number', 'mass'])
+>>> element.values()          # all values
+dict_values(['Carbon', 'C', 6, 12.0])
+>>> element.items()           # key-value pairs as tuples
+dict_items([('name', 'Carbon'), ('symbol', 'C'), ...])
+\end{lstlisting}
+
+Remove entries:
+
+\begin{lstlisting}
+>>> element.pop("mass")       # remove and return value
+12.0
+>>> element
+{'name': 'Carbon', 'symbol': 'C', 'atomic_number': 6}
+>>> del element["symbol"]     # remove without returning
+>>> element
+{'name': 'Carbon', 'atomic_number': 6}
+\end{lstlisting}
+
+\subsection{Nested Dictionaries}
+
+Values can be any type, including other dictionaries:
+
+\begin{lstlisting}
+>>> periodic_table = {
+...     "H": {"name": "Hydrogen", "mass": 1.008, "number": 1},
+...     "He": {"name": "Helium", "mass": 4.003, "number": 2},
+...     "Li": {"name": "Lithium", "mass": 6.941, "number": 3}
+... }
+>>> periodic_table["H"]["mass"]
+1.008
+>>> periodic_table["Li"]["name"]
+'Lithium'
+\end{lstlisting}
+
+\begin{labexample}
+Storing experimental conditions:
+\begin{lstlisting}
+>>> experiment = {
+...     "sample_id": "RXN-2024-001",
+...     "temperature_K": 298.15,
+...     "pressure_atm": 1.0,
+...     "solvent": "water",
+...     "concentrations_M": {
+...         "NaCl": 0.1,
+...         "HCl": 0.01
+...     },
+...     "notes": "Standard conditions"
+... }
+>>> print(f"Sample: {experiment['sample_id']}")
+Sample: RXN-2024-001
+>>> print(f"NaCl conc: {experiment['concentrations_M']['NaCl']} M")
+NaCl conc: 0.1 M
+\end{lstlisting}
+Dictionaries are excellent for structured data where items have meaningful names.
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Sets}
+\label{sec:sets}
+
+A set is an unordered collection of unique elements. Sets automatically remove duplicates:
+
+\begin{lstlisting}
+>>> elements = {"H", "C", "N", "O", "C", "H"}    # note duplicates
+>>> elements
+{'O', 'C', 'N', 'H'}                             # duplicates removed
+>>> len(elements)
+4
+\end{lstlisting}
+
+The order may vary---sets are unordered.
+
+\subsection{Set Operations}
+
+Sets support mathematical set operations:
+
+\begin{lstlisting}
+>>> group1 = {"H", "C", "N", "O"}
+>>> group2 = {"C", "O", "S", "P"}
+>>> group1 | group2               # union (all elements in either)
+{'S', 'N', 'C', 'O', 'P', 'H'}
+>>> group1 & group2               # intersection (elements in both)
+{'C', 'O'}
+>>> group1 - group2               # difference (in group1 but not group2)
+{'N', 'H'}
+>>> group1 ^ group2               # symmetric difference (in one but not both)
+{'S', 'N', 'P', 'H'}
+\end{lstlisting}
+
+\subsection{Membership Testing}
+
+Sets are optimized for membership testing---checking if something is in the set:
+
+\begin{lstlisting}
+>>> elements = {"H", "C", "N", "O", "S", "P"}
+>>> "C" in elements
+True
+>>> "Fe" in elements
+False
+\end{lstlisting}
+
+This is much faster than lists for large collections.
+
+\subsection{Modifying Sets}
+
+\begin{lstlisting}
+>>> elements = {"H", "C", "N"}
+>>> elements.add("O")             # add one element
+>>> elements
+{'O', 'C', 'N', 'H'}
+>>> elements.update(["S", "P"])   # add multiple
+>>> elements
+{'S', 'O', 'C', 'P', 'N', 'H'}
+>>> elements.remove("S")          # remove (error if missing)
+>>> elements.discard("Fe")        # remove (no error if missing)
+\end{lstlisting}
+
+\begin{note}
+To create an empty set, use \py{set()}, not \py{\{\}}:
+\begin{lstlisting}
+>>> empty_dict = {}
+>>> type(empty_dict)
+<class 'dict'>
+>>> empty_set = set()
+>>> type(empty_set)
+<class 'set'>
+\end{lstlisting}
+Curly braces without colons create an empty dictionary, not a set.
+\end{note}
+
+\begin{labexample}
+Finding common elements between two samples:
+\begin{lstlisting}
+>>> sample_a = {"Fe", "Cu", "Zn", "Pb", "Cd"}
+>>> sample_b = {"Cu", "Ag", "Au", "Pb"}
+>>> common = sample_a & sample_b
+>>> print(f"Elements in both samples: {common}")
+Elements in both samples: {'Cu', 'Pb'}
+>>> only_in_a = sample_a - sample_b
+>>> print(f"Only in sample A: {only_in_a}")
+Only in sample A: {'Fe', 'Zn', 'Cd'}
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Choosing the Right Container}
+\label{sec:choosing-container}
+
+With four container types, how do you choose?
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Characteristic & List & Tuple & Dict & Set \\
+\midrule
+Ordered & Yes & Yes & No* & No \\
+Mutable & Yes & No & Yes & Yes \\
+Duplicates allowed & Yes & Yes & Keys: No & No \\
+Access by index & Yes & Yes & No & No \\
+Access by key & No & No & Yes & No \\
+\bottomrule
+\end{tabular}
+\caption{Container type comparison. *Dicts preserve insertion order since Python 3.7, but aren't indexed by position.}
+\label{tab:container-comparison}
+\end{table}
+
+\textbf{Use a list when:}
+\begin{itemize}
+    \item Order matters
+    \item You need to add, remove, or change items
+    \item Items are accessed by position
+    \item Example: time series of measurements
+\end{itemize}
+
+\textbf{Use a tuple when:}
+\begin{itemize}
+    \item Order matters but data shouldn't change
+    \item You're grouping related fixed values
+    \item Example: (x, y, z) coordinates, RGB colors
+\end{itemize}
+
+\textbf{Use a dictionary when:}
+\begin{itemize}
+    \item Items have meaningful names
+    \item You need to look up values by key
+    \item Data is structured with labeled fields
+    \item Example: element properties, experiment metadata
+\end{itemize}
+
+\textbf{Use a set when:}
+\begin{itemize}
+    \item You need unique elements only
+    \item Order doesn't matter
+    \item You're doing membership tests or set operations
+    \item Example: elements present in a sample, unique identifiers
+\end{itemize}
+
+% ----------------------------------------------------------------------------
+\section{Converting Between Types}
+\label{sec:container-conversion}
+
+Convert between container types using their constructors:
+
+\begin{lstlisting}
+>>> list((1, 2, 3))           # tuple to list
+[1, 2, 3]
+>>> tuple([1, 2, 3])          # list to tuple
+(1, 2, 3)
+>>> set([1, 2, 2, 3, 3, 3])   # list to set (removes duplicates)
+{1, 2, 3}
+>>> list({1, 2, 3})           # set to list
+[1, 2, 3]
+>>> list({"a": 1, "b": 2})    # dict to list (gets keys)
+['a', 'b']
+>>> list({"a": 1, "b": 2}.values())  # dict values to list
+[1, 2]
+\end{lstlisting}
+
+A common pattern: remove duplicates from a list while preserving some order:
+
+\begin{lstlisting}
+>>> items = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+>>> unique = list(dict.fromkeys(items))  # preserves first occurrence order
+>>> unique
+[3, 1, 4, 5, 9, 2, 6]
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Nested Structures}
+\label{sec:nested}
+
+Containers can hold other containers, creating complex data structures:
+
+\begin{lstlisting}
+>>> # List of dictionaries (common for tabular data)
+>>> samples = [
+...     {"id": "A1", "concentration": 0.1, "absorbance": 0.23},
+...     {"id": "A2", "concentration": 0.2, "absorbance": 0.45},
+...     {"id": "A3", "concentration": 0.3, "absorbance": 0.68},
+... ]
+>>> samples[1]["absorbance"]
+0.45
+
+>>> # Dictionary with list values
+>>> spectra = {
+...     "wavelengths": [400, 450, 500, 550, 600],
+...     "absorbances": [0.12, 0.34, 0.56, 0.43, 0.21]
+... }
+>>> spectra["wavelengths"][2]
+500
+\end{lstlisting}
+
+\begin{labexample}
+A complete experiment record:
+\begin{lstlisting}
+>>> kinetics_run = {
+...     "reaction": "A + B -> C",
+...     "temperature_K": 298,
+...     "initial_concentrations": {"A": 0.1, "B": 0.2},
+...     "time_points_s": [0, 60, 120, 180, 240, 300],
+...     "concentration_A": [0.1, 0.082, 0.067, 0.055, 0.045, 0.037],
+...     "replicates": 3,
+...     "notes": ["Used fresh reagents", "Room temp stable"]
+... }
+>>> # Access nested data
+>>> initial_A = kinetics_run["initial_concentrations"]["A"]
+>>> final_A = kinetics_run["concentration_A"][-1]
+>>> print(f"[A] dropped from {initial_A} to {final_A} M")
+[A] dropped from 0.1 to 0.037 M
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Chapter Summary}
+\label{sec:containers-summary}
+
+You've learned Python's four main container types:
+
+\begin{itemize}
+    \item \textbf{Lists:} ordered, mutable sequences accessed by index
+    \item \textbf{Tuples:} ordered, immutable sequences for fixed groupings
+    \item \textbf{Dictionaries:} key-value pairs for structured data
+    \item \textbf{Sets:} unordered collections of unique elements
+\end{itemize}
+
+Key operations:
+
+\begin{itemize}
+    \item \textbf{Indexing:} \py{items[0]}, \py{items[-1]}
+    \item \textbf{Slicing:} \py{items[1:4]}, \py{items[::2]}
+    \item \textbf{Length:} \py{len(items)}
+    \item \textbf{Membership:} \py{x in items}
+    \item \textbf{List methods:} \py{append()}, \py{extend()}, \py{pop()}, \py{sort()}
+    \item \textbf{Dict access:} \py{d["key"]}, \py{d.get("key", default)}
+    \item \textbf{Set operations:} \py{|}, \py{\&}, \py{-} (union, intersection, difference)
+\end{itemize}
+
+\begin{ponder}
+\begin{enumerate}
+    \item Why can't lists be dictionary keys, but tuples can?
+    \item You have a list of 1000 sample IDs and need to check if a new ID already exists. Would a list or set be faster for this? Why?
+    \item When would you use a list of dictionaries versus a dictionary of lists?
+    \item What happens if you try to access \py{my\_list[len(my\_list)]}? Why?
+\end{enumerate}
+\end{ponder}

@@ -1,0 +1,610 @@
+% chap03_control_flow.tex - Conditionals and loops
+% ============================================================================
+
+\chapter{Control Flow}
+\label{chap:control-flow}
+
+So far, Python executes your code line by line, top to bottom. But real programs need to make decisions and repeat actions. This chapter introduces \emph{control flow}---the tools that let your code take different paths and loop through repetitive tasks.
+
+% ----------------------------------------------------------------------------
+\section{Making Decisions with if}
+\label{sec:if}
+
+The \py{if} statement lets your code choose what to do based on a condition:
+
+\begin{lstlisting}
+temperature = 373.15
+
+if temperature > 373:
+    print("Water is boiling!")
+\end{lstlisting}
+
+The structure is: \py{if} followed by a condition (something that evaluates to \py{True} or \py{False}), then a colon. The code to run when the condition is true is \emph{indented} on the next line(s).
+
+\subsection{Indentation Matters}
+
+In Python, indentation isn't just for readability---it's part of the syntax. The indented lines after \py{if} are called a \emph{block}. Everything indented at the same level belongs to that block:
+
+\begin{lstlisting}
+if temperature > 373:
+    print("Water is boiling!")
+    print("Be careful!")
+    print("This is also part of the if block")
+
+print("This runs regardless - it's not indented")
+\end{lstlisting}
+
+\begin{warning}
+Inconsistent indentation causes errors. Python doesn't care whether you use spaces or tabs, but you must be consistent. The standard convention is 4 spaces per indentation level. Most editors can be configured to insert 4 spaces when you press Tab.
+\end{warning}
+
+\subsection{if-else}
+
+What if you want to do something different when the condition is false?
+
+\begin{lstlisting}
+pH = 6.5
+
+if pH < 7:
+    print("Solution is acidic")
+else:
+    print("Solution is basic or neutral")
+\end{lstlisting}
+
+The \py{else} block runs when the \py{if} condition is false.
+
+\subsection{if-elif-else}
+
+For multiple conditions, use \py{elif} (short for ``else if''):
+
+\begin{lstlisting}
+pH = 7.0
+
+if pH < 7:
+    print("Acidic")
+elif pH > 7:
+    print("Basic")
+else:
+    print("Neutral")
+\end{lstlisting}
+
+Python checks conditions from top to bottom and runs the first block whose condition is true. If none are true, it runs \py{else} (if present).
+
+\begin{lstlisting}
+score = 85
+
+if score >= 90:
+    grade = "A"
+elif score >= 80:
+    grade = "B"
+elif score >= 70:
+    grade = "C"
+elif score >= 60:
+    grade = "D"
+else:
+    grade = "F"
+
+print(f"Grade: {grade}")
+\end{lstlisting}
+
+\begin{labexample}
+Classifying a reaction based on Gibbs free energy:
+
+\begin{lstlisting}
+delta_G = -15.3  # kJ/mol
+
+if delta_G < 0:
+    print("Reaction is spontaneous (exergonic)")
+elif delta_G > 0:
+    print("Reaction is non-spontaneous (endergonic)")
+else:
+    print("Reaction is at equilibrium")
+\end{lstlisting}
+\end{labexample}
+
+\subsection{Nested Conditions}
+
+You can put \py{if} statements inside other \py{if} statements:
+
+\begin{lstlisting}
+temperature = 25
+pressure = 1.0
+
+if temperature > 0:
+    if pressure > 0.5:
+        print("Conditions might support liquid water")
+    else:
+        print("Pressure too low for liquid")
+else:
+    print("Too cold for liquid water")
+\end{lstlisting}
+
+Nesting works, but deep nesting becomes hard to read. Often you can use \py{and}/\py{or} instead:
+
+\begin{lstlisting}
+if temperature > 0 and pressure > 0.5:
+    print("Conditions might support liquid water")
+\end{lstlisting}
+
+\subsection{Truthiness}
+
+Python treats some values as ``truthy'' (act like \py{True}) and others as ``falsy'' (act like \py{False}):
+
+\begin{itemize}
+    \item \textbf{Falsy:} \py{False}, \py{None}, \py{0}, \py{0.0}, \py{""} (empty string), \py{[]} (empty list), \py{\{\}} (empty dict)
+    \item \textbf{Truthy:} Everything else
+\end{itemize}
+
+This lets you write concise conditions:
+
+\begin{lstlisting}
+data = [1.2, 3.4, 5.6]
+
+if data:  # True if list is not empty
+    print(f"Processing {len(data)} values")
+else:
+    print("No data to process")
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Repeating with for Loops}
+\label{sec:for}
+
+A \py{for} loop repeats code for each item in a sequence:
+
+\begin{lstlisting}
+elements = ["H", "He", "Li", "Be", "B"]
+
+for element in elements:
+    print(element)
+\end{lstlisting}
+
+Output:
+\begin{lstlisting}[style=outputstyle]
+H
+He
+Li
+Be
+B
+\end{lstlisting}
+
+The variable \py{element} takes on each value from the list, one at a time. The indented block runs once for each value.
+
+\subsection{Looping Over Ranges}
+
+The \py{range()} function generates a sequence of numbers:
+
+\begin{lstlisting}
+for i in range(5):
+    print(i)
+\end{lstlisting}
+
+Output:
+\begin{lstlisting}[style=outputstyle]
+0
+1
+2
+3
+4
+\end{lstlisting}
+
+\py{range(5)} produces 0, 1, 2, 3, 4---five numbers starting from 0. Like slicing, the endpoint is exclusive.
+
+\py{range()} can take start, stop, and step arguments:
+
+\begin{lstlisting}
+>>> list(range(2, 10))      # start at 2, stop before 10
+[2, 3, 4, 5, 6, 7, 8, 9]
+>>> list(range(0, 10, 2))   # step by 2
+[0, 2, 4, 6, 8]
+>>> list(range(10, 0, -1))  # count backwards
+[10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+\end{lstlisting}
+
+\begin{labexample}
+Calculating reaction progress at time intervals:
+
+\begin{lstlisting}
+k = 0.05  # rate constant (1/s)
+C0 = 1.0  # initial concentration (M)
+
+print("Time (s)  Concentration (M)")
+print("-" * 30)
+
+for t in range(0, 101, 20):  # 0, 20, 40, 60, 80, 100
+    C = C0 * (2.718 ** (-k * t))  # first-order decay
+    print(f"{t:>5}     {C:.4f}")
+\end{lstlisting}
+\end{labexample}
+
+\subsection{Looping with Index: enumerate()}
+
+Sometimes you need both the item and its position. The \py{enumerate()} function provides both:
+
+\begin{lstlisting}
+elements = ["H", "He", "Li", "Be", "B"]
+
+for index, element in enumerate(elements):
+    print(f"{index}: {element}")
+\end{lstlisting}
+
+Output:
+\begin{lstlisting}[style=outputstyle]
+0: H
+1: He
+2: Li
+3: Be
+4: B
+\end{lstlisting}
+
+Start counting from 1 instead of 0:
+
+\begin{lstlisting}
+for index, element in enumerate(elements, start=1):
+    print(f"{index}: {element}")
+\end{lstlisting}
+
+\subsection{Looping Over Dictionaries}
+
+Looping over a dictionary gives you its keys:
+
+\begin{lstlisting}
+atomic_masses = {"H": 1.008, "He": 4.003, "Li": 6.941}
+
+for element in atomic_masses:
+    print(element)  # prints H, He, Li
+\end{lstlisting}
+
+To get both keys and values, use \py{.items()}:
+
+\begin{lstlisting}
+for element, mass in atomic_masses.items():
+    print(f"{element}: {mass} u")
+\end{lstlisting}
+
+To loop over just values:
+
+\begin{lstlisting}
+for mass in atomic_masses.values():
+    print(mass)
+\end{lstlisting}
+
+\subsection{Looping Over Multiple Lists: zip()}
+
+The \py{zip()} function pairs up items from multiple sequences:
+
+\begin{lstlisting}
+wavelengths = [400, 450, 500, 550, 600]
+absorbances = [0.12, 0.34, 0.56, 0.43, 0.21]
+
+for wavelength, absorbance in zip(wavelengths, absorbances):
+    print(f"{wavelength} nm: A = {absorbance}")
+\end{lstlisting}
+
+\begin{warning}
+If the sequences have different lengths, \py{zip()} stops at the shortest one. No error is raised---data from the longer sequence is silently ignored. Be careful!
+\end{warning}
+
+% ----------------------------------------------------------------------------
+\section{Repeating with while Loops}
+\label{sec:while}
+
+A \py{while} loop repeats as long as a condition is true:
+
+\begin{lstlisting}
+count = 0
+
+while count < 5:
+    print(count)
+    count += 1
+\end{lstlisting}
+
+This prints 0, 1, 2, 3, 4---then stops because \py{count < 5} becomes false.
+
+\begin{warning}
+If the condition never becomes false, the loop runs forever (an ``infinite loop''). Make sure something in the loop changes the condition. If you accidentally create an infinite loop, press Ctrl+C to stop it.
+\end{warning}
+
+\py{while} loops are useful when you don't know in advance how many iterations you need:
+
+\begin{lstlisting}
+# Find when concentration drops below threshold
+C = 1.0
+k = 0.1
+threshold = 0.1
+t = 0
+
+while C > threshold:
+    t += 1
+    C = C * (1 - k)
+
+print(f"Concentration drops below {threshold} at t = {t}")
+\end{lstlisting}
+
+\begin{labexample}
+Simulating radioactive decay until activity drops below detection limit:
+
+\begin{lstlisting}
+N = 1000000  # initial number of atoms
+half_life = 5.27  # years (Co-60)
+decay_constant = 0.693 / half_life
+detection_limit = 100
+t = 0
+dt = 0.1  # time step in years
+
+while N > detection_limit:
+    N = N * (2.718 ** (-decay_constant * dt))
+    t += dt
+
+print(f"Below detection after {t:.1f} years")
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Controlling Loops: break and continue}
+\label{sec:break-continue}
+
+\subsection{break: Exit the Loop Early}
+
+The \py{break} statement immediately exits the loop:
+
+\begin{lstlisting}
+for i in range(100):
+    if i * i > 50:
+        print(f"First square > 50: {i}^2 = {i*i}")
+        break
+\end{lstlisting}
+
+Once \py{break} executes, the loop ends entirely.
+
+\subsection{continue: Skip to Next Iteration}
+
+The \py{continue} statement skips the rest of the current iteration and moves to the next:
+
+\begin{lstlisting}
+for i in range(10):
+    if i % 2 == 0:  # if i is even
+        continue    # skip even numbers
+    print(i)        # only prints odd numbers
+\end{lstlisting}
+
+\begin{labexample}
+Processing data but skipping invalid readings:
+
+\begin{lstlisting}
+readings = [1.2, 3.4, -999, 5.6, -999, 7.8]  # -999 indicates error
+
+valid_readings = []
+for reading in readings:
+    if reading < 0:  # skip error values
+        continue
+    valid_readings.append(reading)
+
+print(f"Valid readings: {valid_readings}")
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{List Comprehensions}
+\label{sec:list-comprehensions}
+
+A \emph{list comprehension} is a compact way to create a list from another sequence. Instead of:
+
+\begin{lstlisting}
+squares = []
+for x in range(10):
+    squares.append(x ** 2)
+\end{lstlisting}
+
+You can write:
+
+\begin{lstlisting}
+squares = [x ** 2 for x in range(10)]
+\end{lstlisting}
+
+The syntax is: \py{[expression for item in sequence]}
+
+\subsection{Adding Conditions}
+
+Filter items with an \py{if} clause:
+
+\begin{lstlisting}
+# Only squares of even numbers
+even_squares = [x ** 2 for x in range(10) if x % 2 == 0]
+# Result: [0, 4, 16, 36, 64]
+\end{lstlisting}
+
+\subsection{Practical Examples}
+
+\begin{lstlisting}
+# Convert temperatures from Celsius to Kelvin
+celsius = [20, 25, 30, 35, 40]
+kelvin = [c + 273.15 for c in celsius]
+
+# Extract concentrations above a threshold
+all_conc = [0.01, 0.15, 0.08, 0.22, 0.05]
+high_conc = [c for c in all_conc if c > 0.1]
+
+# Process strings
+elements = ["hydrogen", "helium", "lithium"]
+symbols = [e[0].upper() for e in elements]  # ['H', 'H', 'L']
+\end{lstlisting}
+
+\begin{tip}
+List comprehensions are elegant but can become unreadable if too complex. If you need nested loops or multiple conditions, a regular \py{for} loop is often clearer.
+\end{tip}
+
+% ----------------------------------------------------------------------------
+\section{Dictionary and Set Comprehensions}
+\label{sec:other-comprehensions}
+
+The same syntax works for dictionaries and sets:
+
+\begin{lstlisting}
+# Dictionary comprehension
+squares_dict = {x: x**2 for x in range(5)}
+# {0: 0, 1: 1, 2: 4, 3: 9, 4: 16}
+
+# Set comprehension
+unique_lengths = {len(word) for word in ["cat", "dog", "elephant"]}
+# {3, 8}
+\end{lstlisting}
+
+\begin{labexample}
+Creating a lookup table for molar masses:
+
+\begin{lstlisting}
+elements = ["H", "He", "Li", "Be", "B"]
+masses = [1.008, 4.003, 6.941, 9.012, 10.81]
+
+molar_mass = {elem: mass for elem, mass in zip(elements, masses)}
+print(molar_mass["Li"])  # 6.941
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Structural Pattern Matching}
+\label{sec:match-case}
+
+Python 3.10 introduced a powerful new way to make decisions called \emph{structural pattern matching}. While \py{if-elif-else} is great for checking conditions (like \py{x > 5}), the \py{match} statement is designed for comparing a value against specific patterns or structures.
+
+The basic syntax looks like this:
+
+\begin{lstlisting}
+match variable:
+    case pattern1:
+        # do something
+    case pattern2:
+        # do something else
+    case _:
+        # default (catch-all)
+\end{lstlisting}
+
+This is often cleaner than a long chain of \py{elif} statements when you are checking for specific values.
+
+\subsection{Basic Matching}
+
+Here is how you might classify an atomic orbital based on its angular momentum quantum number ($l$):
+
+\begin{lstlisting}
+l = 2
+
+match l:
+    case 0:
+        orbital = "s"
+    case 1:
+        orbital = "p"
+    case 2:
+        orbital = "d"
+    case 3:
+        orbital = "f"
+    case _:
+        orbital = "theoretical/undefined"
+
+print(f"Orbital type: {orbital}")
+\end{lstlisting}
+
+The \py{case _:} block acts exactly like \py{else:}---it catches anything that didn't match the previous cases. The underscore (\py{_}) is a wildcard that means "anything."
+
+\begin{warning}
+The \py{match} statement was added in Python 3.10. If you are using an older version (like Python 3.8 or 3.9), this code will cause a \py{SyntaxError}. You must upgrade your Python installation or stick to \py{if-elif-else} for older environments.
+\end{warning}
+
+\subsection{Matching Structures}
+
+The real power of \py{match} isn't just checking values, but checking the \emph{structure} of data, such as lists or tuples. It can even unpack variables inside the case statement.
+
+Imagine an instrument returns a status code. Sometimes it returns just a string (e.g., \py{"IDLE"}), but if there is an error, it returns a tuple with an error code (e.g., \py{("ERROR", 404)}).
+
+\begin{lstlisting}
+# Try changing this to ("ERROR", 500) or "IDLE"
+status = ("ERROR", 404) 
+
+match status:
+    case "IDLE":
+        print("Instrument is ready.")
+    case "RUNNING":
+        print("Experiment in progress...")
+    case ("ERROR", code):
+        # This matches ANY tuple starting with "ERROR"
+        # and captures the second item into the variable 'code'
+        print(f"Instrument malfunction! Error code: {code}")
+    case _:
+        print("Unknown status received.")
+\end{lstlisting}
+
+In the third case, Python checks if \py{status} is a tuple with two items where the first is \py{"ERROR"}. If it matches, it automatically assigns the second item to the variable \py{code}. This is much more readable than writing \py{if isinstance(status, tuple) and status[0] == "ERROR":}.
+
+\begin{labexample}
+Parsing simple commands for a syringe pump:
+
+\begin{lstlisting}
+command = ["INJECT", 50]  # Command and volume in uL
+
+match command:
+    case ["START"]:
+        print("Pump started.")
+    case ["STOP"]:
+        print("Pump stopped.")
+    case ["INJECT", volume]:
+        print(f"Injecting {volume} uL")
+    case ["WITHDRAW", volume]:
+        print(f"Withdrawing {volume} uL")
+    case _:
+        print("Invalid command format.")
+\end{lstlisting}
+\end{labexample}
+
+\begin{tip}
+\textbf{Simulating match-case in older Python}
+
+If you are working on a system with Python 3.9 or older, you cannot use the \py{match} statement. Instead of writing a long chain of \py{if-elif-else} statements, experienced Python programmers often use a \textbf{dictionary lookup}.
+
+This is cleaner and often faster. Here is the orbital example rewritten using a dictionary:
+
+\begin{lstlisting}
+l = 2
+
+# Define the mapping
+orbital_map = {0: "s", 1: "p", 2: "d", 3: "f"}
+
+# Use .get() to handle the default case (like 'case _')
+orbital = orbital_map.get(l, "theoretical/undefined")
+\end{lstlisting}
+
+This works perfectly for matching simple values. However, it cannot do the advanced \emph{structural} matching (like checking for tuples or unpacking variables) that the modern \py{match} statement provides.
+\end{tip}
+
+% ----------------------------------------------------------------------------
+\section{Chapter Summary}
+\label{sec:control-summary}
+
+You've learned to control how your code executes:
+
+\begin{itemize}
+    \item \textbf{Conditionals:} \py{if}, \py{elif}, \py{else} for making decisions
+    \item \textbf{for loops:} Iterate over sequences with \py{for item in sequence}
+    \item \textbf{range():} Generate number sequences for looping
+    \item \textbf{enumerate():} Get both index and value
+    \item \textbf{zip():} Pair up items from multiple sequences
+    \item \textbf{while loops:} Repeat while a condition is true
+    \item \textbf{break/continue:} Control loop execution
+    \item \textbf{Comprehensions:} Compact syntax for creating lists, dicts, sets
+    \item \textbf{Structural Pattern Matching:} Use structured inputs to guide decisions.
+\end{itemize}
+
+\begin{ponder}
+\begin{enumerate}
+    \item When would you use a \py{while} loop instead of a \py{for} loop?
+    \item What's the difference between \py{break} and \py{continue}?
+    \item Rewrite this using a list comprehension:
+    \begin{lstlisting}
+result = []
+for x in range(20):
+    if x % 3 == 0:
+        result.append(x * 2)
+    \end{lstlisting}
+    \item What happens if you forget to increment the counter in a \py{while} loop?
+	\item What happens if a counter increments past a discrete stop condition in a \py{while} loop (e.g. \py{while counter != 5} vs \py{while counter <5}?
+\end{enumerate}
+\end{ponder}

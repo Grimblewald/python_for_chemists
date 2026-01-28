@@ -1,0 +1,80 @@
+% main.tex - Master file for Python for Scientists
+% ============================================================================
+% Compile with: pdflatex main.tex (run twice for TOC)
+% Or use: latexmk -pdf main.tex
+% ============================================================================
+
+\input{preamble}
+
+% ============================================================================
+% DOCUMENT METADATA
+% ============================================================================
+\title{Python and Computational Thinking:\\[0.5em]
+       \Large A Crash Course for Scientists}
+\author{Frithjof Herb}
+\date{\today}
+
+% ============================================================================
+% BEGIN DOCUMENT
+% ============================================================================
+\begin{document}
+
+% ----------------------------------------------------------------------------
+% FRONT MATTER
+% ----------------------------------------------------------------------------
+\frontmatter
+
+% Title page
+\input{frontmatter/titlepage}
+
+% Table of contents
+\tableofcontents
+
+% Preface and how to use
+\input{frontmatter/preface}
+\input{frontmatter/how_to_use}
+
+% ----------------------------------------------------------------------------
+% MAIN MATTER
+% ----------------------------------------------------------------------------
+\mainmatter
+
+% Part I: Getting Started
+\part{Getting Started}
+\input{chapters/chap00_setup}
+
+% Part II: Python Fundamentals
+\part{Python Fundamentals}
+\input{chapters/chap01_basics}
+\input{chapters/chap02_containers}
+\input{chapters/chap03_control_flow}
+\input{chapters/chap04_functions}
+\input{chapters/chap05_files_io}
+\input{chapters/chap06_errors}
+\input{chapters/chap07_oop}
+
+% Part III: Scientific Python
+\part{Scientific Python}
+\input{chapters/chap08_numpy}
+\input{chapters/chap09_pandas}
+\input{chapters/chap10_matplotlib}
+\input{chapters/chap11_scipy}
+
+% Part IV: Putting It Together
+\part{Putting It Together}
+\input{chapters/chap12_practical}
+
+\part{Closing Remarks}
+\input{chapters/closing_remarks}
+% ----------------------------------------------------------------------------
+% BACK MATTER
+% ----------------------------------------------------------------------------
+\backmatter
+
+% Future additions
+% \input{backmatter/appendix_install}
+% \input{backmatter/appendix_troubleshooting}
+% \input{backmatter/bibliography}
+% \input{backmatter/index}
+
+\end{document}

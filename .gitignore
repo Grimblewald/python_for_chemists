@@ -1,0 +1,9 @@
+*.fdb_latexmk
+*.log
+*.out
+*.toc
+*.fls
+*.aux
+/.venv
+/claude_review
+.claude/settings.local.json

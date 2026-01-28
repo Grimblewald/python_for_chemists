@@ -1,0 +1,556 @@
+% chap06_errors.tex - Error handling and exceptions
+% ============================================================================
+
+\chapter{Errors and Exceptions}
+\label{chap:errors}
+
+Things go wrong. Files are missing, users enter invalid data, calculations produce impossible results. Good programs anticipate problems and handle them gracefully instead of crashing. This chapter teaches you to read and write error messages, handle exceptions, and write robust code. 
+
+This is where you distinguish yourself from large language models. While AI can generate code, it lacks your physical intuition. It takes human experience to really understand the specific constraints of a system and anticipate \emph{why} a calculation might fail.
+
+% ----------------------------------------------------------------------------
+\section{Reading Error Messages}
+\label{sec:reading-errors}
+
+When Python encounters a problem, it raises an \emph{exception} and shows an error message called a \emph{traceback}:
+
+\begin{lstlisting}[style=outputstyle]
+Traceback (most recent call last):
+  File "analysis.py", line 15, in <module>
+    result = calculate_concentration(data)
+  File "analysis.py", line 8, in calculate_concentration
+    concentration = mass / molar_mass / volume
+ZeroDivisionError: float division by zero
+\end{lstlisting}
+
+Read tracebacks from bottom to top:
+\begin{enumerate}
+    \item \textbf{Last line:} The type of error and a description
+    \item \textbf{Lines above:} The chain of function calls that led to the error
+    \item \textbf{Line numbers:} Where to look in your code
+\end{enumerate}
+
+In this example: \py{ZeroDivisionError} occurred at line 8, which was called from line 15.
+
+% ----------------------------------------------------------------------------
+\section{Common Error Types}
+\label{sec:error-types}
+
+\subsection{SyntaxError}
+
+Your code violates Python's grammar rules. Python can't even run the code.
+
+\begin{lstlisting}
+# Missing colon
+if x > 5
+    print("big")
+
+# Mismatched parentheses
+print("Hello"
+\end{lstlisting}
+
+\subsection{NameError}
+
+You used a variable that doesn't exist.
+
+\begin{lstlisting}
+>>> print(temperature)
+NameError: name 'temperature' is not defined
+\end{lstlisting}
+
+Usually a typo or you forgot to assign a value.
+
+\subsection{TypeError}
+
+You used an operation on an inappropriate type.
+
+\begin{lstlisting}
+>>> "5" + 3
+TypeError: can only concatenate str (not "int") to str
+
+>>> len(42)
+TypeError: object of type 'int' has no len()
+\end{lstlisting}
+
+\subsection{ValueError}
+
+The type is correct, but the value is inappropriate.
+
+\begin{lstlisting}
+>>> int("hello")
+ValueError: invalid literal for int() with base 10: 'hello'
+
+>>> import math
+>>> math.sqrt(-1)
+ValueError: math domain error
+\end{lstlisting}
+
+\subsection{IndexError}
+
+You accessed a list index that doesn't exist.
+
+\begin{lstlisting}
+>>> data = [1, 2, 3]
+>>> data[10]
+IndexError: list index out of range
+\end{lstlisting}
+
+\subsection{KeyError}
+
+You accessed a dictionary key that doesn't exist.
+
+\begin{lstlisting}
+>>> element = {"name": "Carbon", "symbol": "C"}
+>>> element["mass"]
+KeyError: 'mass'
+\end{lstlisting}
+
+\subsection{FileNotFoundError}
+
+You tried to open a file that doesn't exist.
+
+\begin{lstlisting}
+>>> open("nonexistent.txt")
+FileNotFoundError: [Errno 2] No such file or directory: 'nonexistent.txt'
+\end{lstlisting}
+
+\subsection{AttributeError}
+
+You tried to access a method or property that doesn't exist on an object.
+
+\begin{lstlisting}
+>>> x = 42
+>>> x.append(5)
+AttributeError: 'int' object has no attribute 'append'
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Handling Exceptions with try-except}
+\label{sec:try-except}
+
+Instead of letting errors crash your program, you can catch and handle them:
+
+\begin{lstlisting}
+try:
+    value = int(input("Enter a number: "))
+    print(f"You entered: {value}")
+except ValueError:
+    print("That's not a valid number!")
+\end{lstlisting}
+
+The \py{try} block contains code that might fail. If an exception occurs, Python jumps to the matching \py{except} block instead of crashing.
+
+\subsection{Catching Multiple Exception Types}
+
+\begin{lstlisting}
+try:
+    result = data[index] / divisor
+except IndexError:
+    print("Index out of range")
+except ZeroDivisionError:
+    print("Cannot divide by zero")
+\end{lstlisting}
+
+Or catch several types the same way:
+
+\begin{lstlisting}
+try:
+    value = float(user_input)
+except (ValueError, TypeError):
+    print("Invalid input")
+\end{lstlisting}
+
+\subsection{Accessing Exception Information}
+
+Use \py{as} to get details about the exception:
+
+\begin{lstlisting}
+try:
+    with open("data.txt") as file:
+        content = file.read()
+except FileNotFoundError as e:
+    print(f"Could not open file: {e}")
+\end{lstlisting}
+
+\subsection{Catching All Exceptions}
+
+You can catch any exception with bare \py{except} or \py{except Exception}:
+
+\begin{lstlisting}
+try:
+    risky_operation()
+except Exception as e:
+    print(f"Something went wrong: {e}")
+\end{lstlisting}
+
+\begin{warning}
+Catching all exceptions can hide bugs. Use specific exception types when possible. Bare \py{except:} is especially dangerous because it catches even keyboard interrupts (Ctrl+C), making your program hard to stop.
+\end{warning}
+
+% ----------------------------------------------------------------------------
+\section{else and finally}
+\label{sec:else-finally}
+
+\subsection{else: Code That Runs If No Exception}
+
+\begin{lstlisting}
+try:
+    value = int(input("Enter a number: "))
+except ValueError:
+    print("Invalid input")
+else:
+    print(f"You entered: {value}")
+    # This only runs if no exception occurred
+\end{lstlisting}
+
+\subsection{finally: Code That Always Runs}
+
+\begin{lstlisting}
+try:
+    file = open("data.txt")
+    process(file)
+except FileNotFoundError:
+    print("File not found")
+finally:
+	file.close() 
+    print("Cleanup complete")
+    # This runs whether or not an exception occurred
+\end{lstlisting}
+
+\py{finally} is useful for cleanup operations that must happen regardless of success or failure.
+
+\begin{labexample}
+A robust data loading function:
+
+\begin{lstlisting}
+def load_measurements(filepath):
+    """Load measurements from a file, handling common errors."""
+    measurements = []
+
+    try:
+        with open(filepath, "r") as file:
+            for line_num, line in enumerate(file, start=1):
+                try:
+                    value = float(line.strip())
+                    measurements.append(value)
+                except ValueError:
+                    print(f"Warning: Invalid value on line {line_num}")
+
+    except FileNotFoundError:
+        print(f"Error: File '{filepath}' not found")
+        return None
+    except PermissionError:
+        print(f"Error: Cannot read '{filepath}' (permission denied)")
+        return None
+
+    if not measurements:
+        print("Warning: No valid measurements found")
+        return None
+
+    return measurements
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Raising Exceptions}
+\label{sec:raising}
+
+You can raise your own exceptions when something goes wrong:
+
+\begin{lstlisting}
+def calculate_molarity(mass, molar_mass, volume):
+    if volume <= 0:
+        raise ValueError("Volume must be positive")
+    if molar_mass <= 0:
+        raise ValueError("Molar mass must be positive")
+
+    return mass / molar_mass / volume
+\end{lstlisting}
+
+When the function is called with bad values:
+
+\begin{lstlisting}
+>>> calculate_molarity(5.0, 58.44, -1)
+ValueError: Volume must be positive
+\end{lstlisting}
+
+\subsection{When to Raise Exceptions}
+
+Raise exceptions when:
+\begin{itemize}
+    \item Invalid input is passed to a function
+    \item A required condition isn't met
+    \item Something unexpected happens that the caller should know about
+\end{itemize}
+
+\begin{lstlisting}
+def get_element(symbol):
+    elements = {"H": "Hydrogen", "He": "Helium", "Li": "Lithium"}
+
+    if symbol not in elements:
+        raise KeyError(f"Unknown element symbol: {symbol}")
+
+    return elements[symbol]
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Assertions}
+\label{sec:assertions}
+
+\py{assert} is a way to check that something is true, raising \py{AssertionError} if not:
+
+\begin{lstlisting}
+def calculate_ph(h_concentration):
+    assert h_concentration > 0, "H+ concentration must be positive"
+    import math # usually imports are at file start, it's inside a function here to show you can, but generally you shouldn't import inside a funciton
+    return -math.log10(h_concentration)
+\end{lstlisting}
+
+Assertions are useful for:
+\begin{itemize}
+    \item Catching programmer errors during development
+    \item Documenting assumptions in your code
+    \item Sanity checks that should never fail
+\end{itemize}
+
+\begin{warning}
+Don't use \py{assert} for validating user input or handling expected errors. Assertions can be disabled with \py{python -O}, so they're not guaranteed to run. Use regular \py{if} statements and \py{raise} for real validation.
+\end{warning}
+
+% ----------------------------------------------------------------------------
+\section{Debugging Strategies}
+\label{sec:debugging}
+
+When your code doesn't work, here's how to find the problem:
+
+\subsection{Read the Error Message}
+
+Start with the traceback. What line caused the error? What type of error? What does the message say?
+
+\subsection{Add Print Statements}
+
+\begin{lstlisting}
+def mystery_function(data):
+    print(f"Input data: {data}")
+    result = process(data)
+    print(f"After process: {result}")
+    final = transform(result)
+    print(f"After transform: {final}")
+    return final
+\end{lstlisting}
+
+This helps you see where things go wrong.
+
+\subsection{Simplify}
+
+If a complex expression fails, break it into steps:
+
+\begin{lstlisting}
+# Hard to debug
+result = data[get_index(params)].split(",")[column_map[name]]
+
+# Easier to debug
+index = get_index(params)
+print(f"index: {index}")
+row = data[index]
+print(f"row: {row}")
+parts = row.split(",")
+print(f"parts: {parts}")
+col_index = column_map[name]
+print(f"col_index: {col_index}")
+result = parts[col_index]
+\end{lstlisting}
+
+\subsection{Check Types}
+
+When you get \py{TypeError}, print the types of your variables:
+
+\begin{lstlisting}
+print(type(x), type(y))
+print(repr(x), repr(y))  # repr shows more detail
+\end{lstlisting}
+
+\subsection{Use a Debugger}
+
+Spyder and VS Code have built-in debuggers that let you:
+\begin{itemize}
+    \item Pause execution at specific lines (breakpoints)
+    \item Step through code line by line
+    \item Inspect variable values at any point
+\end{itemize}
+
+Learning to use a debugger is worth the investment.
+
+% ----------------------------------------------------------------------------
+\section{Defensive Programming}
+\label{sec:defensive}
+
+Write code that anticipates problems:
+
+\subsection{Validate Input Early}
+
+\begin{lstlisting}
+def analyze_spectrum(wavelengths, absorbances):
+    # Check inputs at the start
+    if len(wavelengths) != len(absorbances):
+        raise ValueError("Wavelengths and absorbances must have same length")
+
+    if len(wavelengths) == 0:
+        raise ValueError("Cannot analyze empty spectrum")
+
+    if any(a < 0 for a in absorbances):
+        raise ValueError("Absorbances cannot be negative")
+
+    # Now proceed with analysis...
+\end{lstlisting}
+
+\subsection{Use Default Values}
+
+\begin{lstlisting}
+# Instead of crashing on missing key
+value = data.get("key", default_value)
+
+# Instead of crashing on empty list
+average = sum(values) / len(values) if values else 0
+\end{lstlisting}
+
+\subsection{Fail Fast}
+
+If something is wrong, fail immediately with a clear message rather than continuing and causing confusing errors later:
+
+\begin{lstlisting}
+def load_config(filepath):
+    if not filepath.exists():
+        raise FileNotFoundError(f"Config file not found: {filepath}")
+
+    # Continue only if file exists...
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+% ----------------------------------------------------------------------------
+\section{Automated Testing with pytest}
+\label{sec:pytest}
+
+In Section~\ref{sec:assertions}, we used \py{assert} to check if conditions were true. While useful, scattering assertions inside your analysis scripts makes them messy. Worse, you have to run the script manually to check if they pass.
+
+\emph{Unit testing} is the practice of writing small, separate pieces of code that check if your "real" code is working correctly. The standard tool for this in Python is \py{pytest}.
+
+To get started, install it (making sure your virtual environment is active):
+
+\begin{lstlisting}
+pip install pytest
+\end{lstlisting}
+
+\subsection{Writing Your First Test (and the Float Trap)}
+
+\py{pytest} relies on conventions. It looks for files starting with \py{test_} and functions starting with \py{test_}.
+
+Let's test a simple dilution function. Create a file called \py{test_dilution.py}:
+
+\begin{lstlisting}
+# The function we want to test
+def calculate_c2(c1, v1, v2):
+    """Calculate final concentration: c1*v1 = c2*v2"""
+    return (c1 * v1) / v2
+
+# A simple test case
+def test_simple_dilution():
+    # 1.0 M * 0.5 L / 1.0 L should be 0.5 M
+    assert calculate_c2(1.0, 0.5, 1.0) == 0.5
+\end{lstlisting}
+
+Run this in your terminal by typing \py{pytest}. It should pass with green text.
+
+However, scientific calculations often involve decimals. Recall Section~\ref{subsec:floats}, where we discussed that computers cannot store all floating-point numbers exactly (e.g., \py{0.1 + 0.2} is slightly larger than \py{0.3}). This causes \emph{flaky tests}.
+
+Consider this test case:
+
+\begin{lstlisting}
+def test_float_precision_problem():
+    # 0.1 M * 3.0 L / 1.0 L should be 0.3 M
+    result = calculate_c2(0.1, 3.0, 1.0)
+    
+    # This assertion will FAIL!
+    # Actual result is 0.30000000000000004
+    assert result == 0.3
+\end{lstlisting}
+
+If you run this, \py{pytest} will report a failure because the numbers are strictly not equal.
+
+\begin{ponder}
+Before reading on, how would you solve this? You cannot change how Python stores math. How can you write a test that checks if two numbers are "close enough" to be considered equal?
+\end{ponder}
+
+\begin{tip}
+\textbf{Handling Float Comparison}
+
+The manual way to solve this is to check if the difference is smaller than a tiny tolerance:
+\begin{lstlisting}
+assert abs(result - 0.3) < 1e-6
+\end{lstlisting}
+
+However, \py{pytest} has a built-in tool for this: \py{pytest.approx()}.
+\begin{lstlisting}
+from pytest import approx
+assert result == approx(0.3)
+\end{lstlisting}
+This is the standard way to test numerical code in Python.
+\end{tip}
+
+\subsection{Testing for Expected Errors}
+
+A robust function should not just return correct values; it should also reject nonsense inputs. For example, a volume cannot be negative.
+
+If you write code to raise an error (defensive programming), you must test that the error actually occurs. You cannot use a standard \py{assert} for this, because if the error occurs, the test crashes.
+
+Instead, use \py{pytest.raises} as a "context manager" to catch the crash:
+
+\begin{lstlisting}
+import pytest
+
+# Improved function with error checking
+def calculate_c2_safe(c1, v1, v2):
+    if v2 <= 0:
+        raise ValueError("Final volume must be positive")
+    return (c1 * v1) / v2
+
+def test_zero_volume_error():
+    # We assert that the code inside the block RAISES ValueError.
+    # If the code runs successfully (no error), the test FAILS.
+    with pytest.raises(ValueError):
+        calculate_c2_safe(1.0, 0.5, 0)
+
+def test_negative_volume_error():
+    with pytest.raises(ValueError):
+        calculate_c2_safe(1.0, 0.5, -10.0)
+\end{lstlisting}
+
+This pattern documents your assumptions. Anyone reading \py{test_zero_volume_error} knows immediately that your function is strictly designed to reject invalid volumes.
+
+% ----------------------------------------------------------------------------
+
+\section{Chapter Summary}
+\label{sec:errors-summary}
+
+Error handling makes your code robust, while testing ensures it stays correct:
+
+\begin{itemize}
+    \item \textbf{Read tracebacks} bottom to top
+    \item \textbf{Common errors:} \py{SyntaxError}, \py{NameError}, \py{TypeError}, \py{ValueError}, \py{IndexError}, \py{KeyError}
+    \item \textbf{try-except:} Catch and handle exceptions
+    \item \textbf{raise:} Create your own exceptions
+    \item \textbf{assert:} Check assumptions during development
+    \item \textbf{Debug:} Print statements, simplify, check types
+    \item \textbf{pytest:} Automate testing with simple functions in \py{test_*.py} files
+    \item \textbf{Testing failures:} Use \py{pytest.raises} to verify your code catches invalid inputs
+\end{itemize}
+
+\begin{ponder}
+\begin{enumerate}
+    \item What's the difference between \py{SyntaxError} and other exceptions?
+    \item Why is catching all exceptions with bare \py{except:} dangerous?
+    \item When would you use \py{assert} vs. \py{raise}?
+    \item How would you handle a function that might receive either a filename string or an already-opened file object?
+    \item What benefits are there to writing unit tests, and is it worth the time? If your answer is no, think harder.
+\end{enumerate}
+\end{ponder}

@@ -1,0 +1,423 @@
+% chap07_oop.tex - Object-oriented programming basics
+% ============================================================================
+
+\chapter{Object-Oriented Programming}
+\label{chap:oop}
+
+You've been using objects throughout this book. Strings have methods like \py{.upper()}. Lists have methods like \py{.append()}. Now it's time to understand what objects are and how to create your own. Object-oriented programming (OOP) lets you bundle data and the functions that operate on that data into cohesive units.
+
+% ----------------------------------------------------------------------------
+\section{What Are Objects?}
+\label{sec:what-are-objects}
+
+An \emph{object} combines data (called \emph{attributes}) with functions that operate on that data (called \emph{methods}). You've used many objects already:
+
+\begin{lstlisting}
+text = "hello"       # text is a string object
+text.upper()         # upper() is a method of string objects
+
+numbers = [1, 2, 3]  # numbers is a list object
+numbers.append(4)    # append() is a method of list objects
+\end{lstlisting}
+
+A \emph{class} is the blueprint for creating objects. \py{str} is a class; \py{"hello"} is an object (or \emph{instance}) of that class.
+
+% ----------------------------------------------------------------------------
+\section{Defining a Class}
+\label{sec:defining-class}
+
+Create a class with the \py{class} keyword:
+
+\begin{lstlisting}
+class Element:
+    """Represents a chemical element."""
+
+    def __init__(self, symbol, name, atomic_number):
+        """Initialize the element with its properties."""
+        self.symbol = symbol
+        self.name = name
+        self.atomic_number = atomic_number
+
+    def describe(self):
+        """Print a description of the element."""
+        print(f"{self.name} ({self.symbol}): Z = {self.atomic_number}")
+\end{lstlisting}
+
+Let's break this down:
+
+\begin{itemize}
+    \item \py{class Element:} defines a new class called \py{Element}
+    \item \py{__init__} is a special method called when you create a new object (the \emph{constructor})
+    \item \py{self} refers to the object being created or used
+    \item \py{self.symbol} creates an attribute called \py{symbol} on the object
+    \item \py{describe} is a regular method that operates on the object
+\end{itemize}
+
+\subsection{Creating Objects}
+
+Create objects by calling the class like a function:
+
+\begin{lstlisting}
+carbon = Element("C", "Carbon", 6)
+oxygen = Element("O", "Oxygen", 8)
+
+print(carbon.symbol)       # C
+print(oxygen.atomic_number)  # 8
+
+carbon.describe()  # Carbon (C): Z = 6
+oxygen.describe()  # Oxygen (O): Z = 8
+\end{lstlisting}
+
+Each object has its own data. \py{carbon.symbol} is \py{"C"}, while \py{oxygen.symbol} is \py{"O"}.
+
+% ----------------------------------------------------------------------------
+\section{The self Parameter}
+\label{sec:self}
+
+Every method's first parameter is \py{self}, which refers to the object the method is called on:
+
+\begin{lstlisting}
+class Counter:
+    def __init__(self):
+        self.count = 0
+
+    def increment(self):
+        self.count += 1
+
+    def get_count(self):
+        return self.count
+
+c = Counter()
+c.increment()  # self refers to c
+c.increment()
+print(c.get_count())  # 2
+\end{lstlisting}
+
+When you call \py{c.increment()}, Python automatically passes \py{c} as the \py{self} parameter.
+
+\begin{note}
+The name \py{self} is a convention, not a requirement. You could use any name, but \py{self} is universal in Python---use it.
+\end{note}
+
+% ----------------------------------------------------------------------------
+\section{Attributes and Methods}
+\label{sec:attributes-methods}
+
+\subsection{Instance Attributes}
+
+Attributes defined on \py{self} belong to each individual object:
+
+\begin{lstlisting}
+class Sample:
+    def __init__(self, name, concentration):
+        self.name = name
+        self.concentration = concentration
+
+sample1 = Sample("A", 0.1)
+sample2 = Sample("B", 0.2)
+
+print(sample1.concentration)  # 0.1
+print(sample2.concentration)  # 0.2
+\end{lstlisting}
+
+\subsection{Class Attributes}
+
+Attributes defined on the class are shared by all objects:
+
+\begin{lstlisting}
+class Element:
+    # Class attribute - shared by all instances
+    elements_created = 0
+
+    def __init__(self, symbol, name):
+        self.symbol = symbol  # instance attribute
+        self.name = name
+        Element.elements_created += 1
+
+e1 = Element("H", "Hydrogen")
+e2 = Element("He", "Helium")
+print(Element.elements_created)  # 2
+\end{lstlisting}
+
+\subsection{Methods}
+
+Methods are functions that belong to a class:
+
+\begin{lstlisting}
+class Solution:
+    def __init__(self, solute, concentration, volume):
+        self.solute = solute
+        self.concentration = concentration  # mol/L
+        self.volume = volume  # L
+
+    def moles(self):
+        """Calculate moles of solute."""
+        return self.concentration * self.volume
+
+    def dilute(self, new_volume):
+        """Return new concentration after dilution."""
+        moles = self.moles()
+        return moles / new_volume
+
+    def describe(self):
+        print(f"{self.concentration} M {self.solute}, {self.volume} L")
+
+
+stock = Solution("NaCl", 1.0, 0.5)
+stock.describe()  # 1.0 M NaCl, 0.5 L
+print(f"Moles: {stock.moles()}")  # Moles: 0.5
+
+new_conc = stock.dilute(2.0)
+print(f"After dilution to 2L: {new_conc} M")
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Special Methods}
+\label{sec:special-methods}
+
+Python uses methods with double underscores (``dunder'' methods) for special behaviors:
+
+\subsection{\_\_str\_\_ and \_\_repr\_\_}
+
+Control how objects are displayed:
+
+\begin{lstlisting}
+class Element:
+    def __init__(self, symbol, name, atomic_number):
+        self.symbol = symbol
+        self.name = name
+        self.atomic_number = atomic_number
+
+    def __str__(self):
+        """Human-readable string (used by print)."""
+        return f"{self.name} ({self.symbol})"
+
+    def __repr__(self):
+        """Developer-readable string (used in REPL)."""
+        return f"Element('{self.symbol}', '{self.name}', {self.atomic_number})"
+
+carbon = Element("C", "Carbon", 6)
+print(carbon)  # Carbon (C)
+\end{lstlisting}
+
+\subsection{Comparison Methods}
+
+Make objects comparable:
+
+\begin{lstlisting}
+class Element:
+    def __init__(self, symbol, atomic_number):
+        self.symbol = symbol
+        self.atomic_number = atomic_number
+
+    def __eq__(self, other):
+        """Equal if same atomic number."""
+        return self.atomic_number == other.atomic_number
+
+    def __lt__(self, other):
+        """Less than based on atomic number."""
+        return self.atomic_number < other.atomic_number
+
+carbon = Element("C", 6)
+oxygen = Element("O", 8)
+
+print(carbon < oxygen)   # True
+print(carbon == oxygen)  # False
+
+elements = [oxygen, carbon]
+print(sorted(elements))  # sorts by atomic number
+\end{lstlisting}
+
+\subsection{Arithmetic Methods}
+
+Define what \py{+}, \py{-}, \py{*} do for your objects:
+
+\begin{lstlisting}
+class Vector:
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def __add__(self, other):
+        return Vector(self.x + other.x, self.y + other.y, self.z + other.z)
+
+    def __mul__(self, scalar):
+        return Vector(self.x * scalar, self.y * scalar, self.z * scalar)
+
+    def __str__(self):
+        return f"({self.x}, {self.y}, {self.z})"
+
+v1 = Vector(1, 2, 3)
+v2 = Vector(4, 5, 6)
+print(v1 + v2)    # (5, 7, 9)
+print(v1 * 2)     # (2, 4, 6)
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Encapsulation}
+\label{sec:encapsulation}
+
+\emph{Encapsulation} means hiding internal details and providing a clean interface:
+
+\begin{lstlisting}
+class Thermometer:
+    def __init__(self):
+        self._temperature_c = 0  # underscore suggests "private"
+
+    def set_celsius(self, temp):
+        if temp < -273.15:
+            raise ValueError("Temperature below absolute zero!")
+        self._temperature_c = temp
+
+    def get_celsius(self):
+        return self._temperature_c
+
+    def get_kelvin(self):
+        return self._temperature_c + 273.15
+
+    def get_fahrenheit(self):
+        return self._temperature_c * 9/5 + 32
+\end{lstlisting}
+
+The underscore prefix (\py{_temperature_c}) is a convention meaning ``don't access this directly.'' Users should use the methods, which can validate input.
+
+\begin{note}
+Python doesn't enforce privacy---you can still access \py{_temperature_c}. The underscore is a polite suggestion, not a lock.
+\end{note}
+
+% ----------------------------------------------------------------------------
+\section{Inheritance}
+\label{sec:inheritance}
+
+\emph{Inheritance} lets you create new classes based on existing ones:
+
+\begin{lstlisting}
+class Compound:
+    """Base class for chemical compounds."""
+
+    def __init__(self, formula, molar_mass):
+        self.formula = formula
+        self.molar_mass = molar_mass
+
+    def describe(self):
+        print(f"{self.formula}: {self.molar_mass} g/mol")
+
+
+class Acid(Compound):
+    """An acid compound with pKa."""
+
+    def __init__(self, formula, molar_mass, pKa):
+        super().__init__(formula, molar_mass)  # call parent's __init__
+        self.pKa = pKa
+
+    def describe(self):
+        super().describe()  # call parent's describe
+        print(f"  pKa = {self.pKa}")
+
+    def Ka(self):
+        return 10 ** (-self.pKa)
+
+
+acetic = Acid("CH3COOH", 60.05, 4.76)
+acetic.describe()
+# CH3COOH: 60.05 g/mol
+#   pKa = 4.76
+
+print(f"Ka = {acetic.Ka():.2e}")  # Ka = 1.74e-05
+\end{lstlisting}
+
+\py{Acid} inherits from \py{Compound}:
+\begin{itemize}
+    \item It gets \py{formula} and \py{molar\_mass} from \py{Compound}
+    \item \py{super()} calls the parent class's methods
+    \item It adds its own \py{pKa} attribute and \py{Ka()} method
+    \item It can override methods (like \py{describe})
+\end{itemize}
+
+% ----------------------------------------------------------------------------
+\section{When to Use Classes}
+\label{sec:when-classes}
+
+Classes are useful when:
+
+\begin{itemize}
+    \item You have data that naturally belongs together (element properties, sample metadata)
+    \item You need multiple instances with the same structure
+    \item You have functions that always operate on the same data
+    \item You want to model real-world entities (samples, instruments, experiments)
+\end{itemize}
+
+Don't use classes when:
+
+\begin{itemize}
+    \item A simple function would do
+    \item You only need one instance
+    \item The data doesn't have associated behavior
+\end{itemize}
+
+\begin{labexample}
+A class for spectroscopy data:
+
+\begin{lstlisting}
+class Spectrum:
+    def __init__(self, wavelengths, absorbances, name=""):
+        self.wavelengths = wavelengths
+        self.absorbances = absorbances
+        self.name = name
+
+    def peak_wavelength(self):
+        """Find wavelength of maximum absorbance."""
+        max_idx = self.absorbances.index(max(self.absorbances))
+        return self.wavelengths[max_idx]
+
+    def absorbance_at(self, wavelength):
+        """Get absorbance at specific wavelength (nearest point)."""
+        closest_idx = min(range(len(self.wavelengths)),
+                         key=lambda i: abs(self.wavelengths[i] - wavelength))
+        return self.absorbances[closest_idx]
+
+    def normalize(self):
+        """Return new spectrum normalized to max = 1."""
+        max_abs = max(self.absorbances)
+        normalized = [a / max_abs for a in self.absorbances]
+        return Spectrum(self.wavelengths.copy(), normalized, self.name)
+
+
+# Using the class
+wl = [400, 420, 440, 460, 480, 500]
+ab = [0.1, 0.3, 0.8, 0.6, 0.4, 0.2]
+
+spectrum = Spectrum(wl, ab, "Sample A")
+print(f"Peak at {spectrum.peak_wavelength()} nm")
+print(f"A at 450nm: {spectrum.absorbance_at(450):.2f}")
+
+normalized = spectrum.normalize()
+print(f"Normalized peak: {max(normalized.absorbances)}")
+\end{lstlisting}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Chapter Summary}
+\label{sec:oop-summary}
+
+Object-oriented programming bundles data with behavior:
+
+\begin{itemize}
+    \item \textbf{Class:} Blueprint for objects (\py{class MyClass:})
+    \item \textbf{Object:} Instance of a class (\py{obj = MyClass()})
+    \item \textbf{Attributes:} Data stored on objects (\py{self.data})
+    \item \textbf{Methods:} Functions belonging to objects
+    \item \textbf{\_\_init\_\_:} Constructor, called when creating objects
+    \item \textbf{self:} Reference to the current object
+    \item \textbf{Inheritance:} Creating classes based on other classes
+\end{itemize}
+
+\begin{ponder}
+\begin{enumerate}
+    \item What's the difference between a class and an object?
+    \item Why does every method need \py{self} as its first parameter?
+    \item When would you use inheritance?
+    \item Design a class to represent a laboratory sample with properties like ID, collection date, and concentration. What methods might it have?
+\end{enumerate}
+\end{ponder}

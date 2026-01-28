@@ -1,0 +1,80 @@
+% how_to_use.tex - Guide to reading and using this book
+% ============================================================================
+
+\chapter*{How to Use This Book}
+\addcontentsline{toc}{chapter}{How to Use This Book}
+
+\section*{Read in Order (At First)}
+
+The chapters build on each other. Chapter 2 assumes you completed Chapter 1. Skipping ahead usually leads to confusion and backtracking. Once you've worked through the whole book, it becomes a useful reference for jumping to specific topics. But for first-time learners: start at the beginning.
+
+\section*{Special Boxes}
+
+Throughout the book, you'll find colored boxes that highlight different types of information:
+
+\begin{warning}
+\textbf{Warnings} alert you to common mistakes and pitfalls. Pay attention to these---they'll save you debugging time.
+\end{warning}
+
+\begin{tip}
+\textbf{Tips} offer shortcuts, best practices, or alternative approaches that experienced programmers use.
+\end{tip}
+
+\begin{note}
+\textbf{Notes} provide additional context or clarification that might help your understanding but isn't strictly necessary.
+\end{note}
+
+\begin{osbox}
+\textbf{OS Differences} explain when something works differently on Windows, macOS, or Linux. Most of Python is identical across systems, but installation and file paths sometimes differ.
+\end{osbox}
+
+\begin{labexample}
+\textbf{Lab Examples} connect programming concepts to real scientific scenarios. These show how you might actually use what you're learning in your research.
+\end{labexample}
+
+\begin{ponder}
+\textbf{Things to Ponder} are reflection questions at the end of sections. You don't need to answer them in writing, but thinking about them helps solidify concepts.
+\end{ponder}
+
+\section*{Code Examples}
+
+Code appears in monospace font with syntax highlighting:
+
+\begin{lstlisting}
+# This is Python code
+temperature = 298.15  # Kelvin
+print(f"Temperature: {temperature} K")
+\end{lstlisting}
+
+When we show interactive Python sessions (the REPL), you'll see \py{>>>} prompts:
+
+\begin{lstlisting}
+>>> 2 + 2
+4
+>>> "hello".upper()
+'HELLO'
+\end{lstlisting}
+
+Lines starting with \py{>>>} are what you type. Lines without are Python's output.
+
+\section*{Typing vs. Copying}
+
+Type the code examples yourself. Yes, it's slower than copy-pasting. That's the point. Typing forces you to read every character, notice the syntax, and build muscle memory. It also means you'll make typos, see error messages, and learn to fix them---all valuable skills.
+
+\section*{Data Files}
+
+Some examples use data files (CSV files, text files with measurements, etc.). These are available in the \filepath{data/} folder that accompanies this book. When an example references a file like \filepath{titration\_data.csv}, you'll find it there.
+
+\section*{Getting Unstuck}
+
+When something doesn't work:
+
+\begin{enumerate}
+    \item Read the error message carefully. Python tells you what's wrong.
+    \item Check for typos. Case matters. Indentation matters. Quotes must match.
+    \item Re-read the relevant section. Something may have not registered the first time.
+    \item Search online. Copy-paste the error message into a search engine. Someone else has had the same problem.
+    \item Take a break. Fresh eyes find bugs faster.
+\end{enumerate}
+
+Debugging is part of programming. Getting stuck doesn't mean you're bad at this---it means you're learning.

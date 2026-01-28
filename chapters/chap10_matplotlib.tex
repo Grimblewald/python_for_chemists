@@ -1,0 +1,534 @@
+% chap10_matplotlib.tex - Data visualization with Matplotlib
+% ============================================================================
+
+\chapter{Matplotlib: Visualization}
+\label{chap:matplotlib}
+
+Clear figures are essential for understanding data and communicating results. Matplotlib is Python's foundational plotting library---flexible, powerful, and capable of producing publication-quality graphics.
+
+% ----------------------------------------------------------------------------
+\section{The Basics}
+\label{sec:plotting-basics}
+
+\begin{lstlisting}
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Create data
+x = np.linspace(0, 10, 100)
+y = np.sin(x)
+
+# Create plot
+plt.plot(x, y)
+plt.show()
+\end{lstlisting}
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{figures/chap10/basic_sine.pdf}
+\end{center}
+
+This creates a simple line plot. \py{plt.show()} displays the figure in a window or inline (in Jupyter notebooks). In spyder there is a "plot" pane which will keep a history of that session's plots for perusing.
+
+\subsection{Adding Labels and Title}
+
+\begin{lstlisting}
+plt.plot(x, y)
+plt.xlabel("Time (s)")
+plt.ylabel("Amplitude")
+plt.title("Sine Wave")
+plt.show()
+\end{lstlisting}
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{figures/chap10/sine_labeled.pdf}
+\end{center}
+
+\subsection{Saving Figures}
+
+\begin{lstlisting}
+plt.plot(x, y)
+plt.xlabel("Time (s)")
+plt.ylabel("Amplitude")
+plt.savefig("sine_wave.png", dpi=300)  # 300 DPI for print quality
+plt.savefig("sine_wave.pdf")            # vector format for publications
+\end{lstlisting}
+
+\begin{tip}
+Save as PDF or SVG for publications---these are vector formats that scale without pixelation. For more information, read up on the difference between raster and vector graphics.
+\end{tip}
+
+% ----------------------------------------------------------------------------
+\section{Line Plots}
+\label{sec:line-plots}
+
+\subsection{Multiple Lines}
+
+\begin{lstlisting}
+x = np.linspace(0, 10, 100)
+
+plt.plot(x, np.sin(x), label="sin(x)")
+plt.plot(x, np.cos(x), label="cos(x)")
+plt.xlabel("x")
+plt.ylabel("y")
+plt.legend()
+plt.show()
+\end{lstlisting}
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{figures/chap10/sin_cos.pdf}
+\end{center}
+
+\subsection{Line Styles and Colors}
+
+\begin{lstlisting}
+plt.plot(x, y, color="red")
+plt.plot(x, y, color="#1f77b4")     # hex color
+plt.plot(x, y, linestyle="--")       # dashed
+plt.plot(x, y, linestyle=":")        # dotted
+plt.plot(x, y, linewidth=2)          # thicker line
+
+# Combined format string
+plt.plot(x, y, "r--")   # red dashed
+plt.plot(x, y, "b.-")   # blue dots with line
+plt.plot(x, y, "go")    # green circles (no line)
+\end{lstlisting}
+
+\begin{labexample}
+Plotting kinetics data:
+
+\begin{lstlisting}
+time = np.array([0, 10, 20, 30, 40, 50, 60])
+concentration = np.array([1.0, 0.82, 0.67, 0.55, 0.45, 0.37, 0.30])
+
+plt.plot(time, concentration, "ko-", label="Experimental")
+
+# Add fitted curve
+k = 0.02
+t_fit = np.linspace(0, 60, 100)
+c_fit = 1.0 * np.exp(-k * t_fit)
+plt.plot(t_fit, c_fit, "r-", label=f"Fit: k = {k} s$^{{-1}}$")
+
+plt.xlabel("Time (s)")
+plt.ylabel("Concentration (M)")
+plt.legend()
+plt.savefig("kinetics.png", dpi=300)
+\end{lstlisting}
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{figures/chap10/kinetics.pdf}
+\end{center}
+\end{labexample}
+
+% ----------------------------------------------------------------------------
+\section{Scatter Plots}
+\label{sec:scatter}
+
+\begin{lstlisting}
+x = np.random.rand(50)
+y = 2 * x + 0.5 + np.random.randn(50) * 0.2
+
+plt.scatter(x, y)
+plt.xlabel("Independent Variable")
+plt.ylabel("Dependent Variable")
+plt.show()
+\end{lstlisting}
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{figures/chap10/scatter_basic.pdf}
+\end{center}
+
+\subsection{Customizing Markers}
+
+\begin{lstlisting}
+plt.scatter(x, y,
+           s=50,              # marker size
+           c="blue",          # color
+           marker="o",        # marker shape
+           alpha=0.7,         # transparency
+           edgecolors="black")
+\end{lstlisting}
+
+\subsection{Color by Value}
+
+\begin{lstlisting}
+# Color points by a third variable
+z = x + y
+plt.scatter(x, y, c=z, cmap="viridis")
+plt.colorbar(label="z value")
+plt.show()
+\end{lstlisting}
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{figures/chap10/scatter_colorby.pdf}
+\end{center}
+
+% ----------------------------------------------------------------------------
+\section{Bar Charts}
+\label{sec:bar}
+
+\begin{lstlisting}
+categories = ["A", "B", "C", "D"]
+values = [23, 45, 56, 78]
+
+plt.bar(categories, values)
+plt.xlabel("Category")
+plt.ylabel("Value")
+plt.show()
+\end{lstlisting}
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{figures/chap10/bar_basic.pdf}
+\end{center}
+
+\subsection{Grouped Bars}
+
+\begin{lstlisting}
+x = np.arange(4)
+width = 0.35
+treatment = [23, 45, 56, 78]
+control = [20, 38, 49, 65]
+
+plt.bar(x - width/2, treatment, width, label="Treatment")
+plt.bar(x + width/2, control, width, label="Control")
+plt.xticks(x, ["A", "B", "C", "D"])
+plt.legend()
+plt.show()
+\end{lstlisting}
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{figures/chap10/bar_grouped.pdf}
+\end{center}
+
+\subsection{Error Bars}
+
+\begin{lstlisting}
+means = [23, 45, 56, 78]
+stds = [2, 4, 3, 5]
+
+plt.bar(categories, means, yerr=stds, capsize=5)
+plt.ylabel("Value")
+plt.show()
+\end{lstlisting}
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{figures/chap10/bar_errorbars.pdf}
+\end{center}
+
+% ----------------------------------------------------------------------------
+\section{Histograms}
+\label{sec:histograms}
+
+\begin{lstlisting}
+data = np.random.randn(1000)  # 1000 normal random numbers
+
+plt.hist(data, bins=30)
+plt.xlabel("Value")
+plt.ylabel("Frequency")
+plt.show()
+\end{lstlisting}
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{figures/chap10/histogram_basic.pdf}
+\end{center}
+
+\subsection{Customizing Histograms}
+
+\begin{lstlisting}
+plt.hist(data,
+        bins=30,
+        density=True,        # normalize to probability density
+        alpha=0.7,
+        color="steelblue",
+        edgecolor="black")
+
+# Overlay multiple histograms
+plt.hist(data1, bins=30, alpha=0.5, label="Sample 1")
+plt.hist(data2, bins=30, alpha=0.5, label="Sample 2")
+plt.legend()
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Subplots}
+\label{sec:subplots}
+
+Combine multiple plots in one figure:
+
+\begin{lstlisting}
+fig, axes = plt.subplots(2, 2, figsize=(10, 8))
+
+# axes is a 2x2 array of Axes objects
+axes[0, 0].plot(x, np.sin(x))
+axes[0, 0].set_title("Sine")
+
+axes[0, 1].plot(x, np.cos(x))
+axes[0, 1].set_title("Cosine")
+
+axes[1, 0].plot(x, np.exp(-x))
+axes[1, 0].set_title("Exponential Decay")
+
+axes[1, 1].plot(x, x**2)
+axes[1, 1].set_title("Quadratic")
+
+plt.tight_layout()  # prevent overlapping
+plt.savefig("subplots.png")
+\end{lstlisting}
+
+\begin{center}
+\includegraphics[width=0.85\textwidth]{figures/chap10/subplots_2x2.pdf}
+\end{center}
+
+\subsection{Sharing Axes}
+
+\begin{lstlisting}
+fig, axes = plt.subplots(2, 1, sharex=True)
+
+axes[0].plot(time, concentration)
+axes[0].set_ylabel("Concentration (M)")
+
+axes[1].plot(time, rate)
+axes[1].set_ylabel("Rate (M/s)")
+axes[1].set_xlabel("Time (s)")
+
+plt.tight_layout()
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{The Object-Oriented Interface}
+\label{sec:oo-interface}
+
+For complex figures, the object-oriented interface gives more control:
+
+\begin{lstlisting}
+# Create figure and axes explicitly
+fig, ax = plt.subplots(figsize=(8, 6))
+
+ax.plot(x, y, "b-", label="Data")
+ax.set_xlabel("X axis")
+ax.set_ylabel("Y axis")
+ax.set_title("My Plot")
+ax.legend()
+ax.grid(True, alpha=0.3)
+
+fig.savefig("plot.png", dpi=300, bbox_inches="tight")
+\end{lstlisting}
+
+\begin{tip}
+Use \py{plt.plot()} for quick, simple plots. Use \py{fig, ax = plt.subplots()} for anything more complex or when you need precise control.
+\end{tip}
+
+% ----------------------------------------------------------------------------
+\section{Customization}
+\label{sec:customization}
+
+\subsection{Axis Limits and Ticks}
+
+\begin{lstlisting}
+ax.set_xlim(0, 10)
+ax.set_ylim(-1, 1)
+ax.set_xticks([0, 2, 4, 6, 8, 10])
+ax.set_xticklabels(["0", "2", "4", "6", "8", "10 s"])
+\end{lstlisting}
+
+\subsection{Log Scales}
+
+\begin{lstlisting}
+ax.set_yscale("log")
+ax.set_xscale("log")
+
+# Or use specialized plot functions
+plt.semilogy(x, y)   # log y-axis
+plt.semilogx(x, y)   # log x-axis
+plt.loglog(x, y)     # both log
+\end{lstlisting}
+
+\subsection{Grid}
+
+\begin{lstlisting}
+ax.grid(True)
+ax.grid(True, which="major", linestyle="-", alpha=0.5)
+ax.grid(True, which="minor", linestyle=":", alpha=0.3)
+ax.minorticks_on()
+\end{lstlisting}
+
+\subsection{Annotations}
+
+\begin{lstlisting}
+ax.annotate("Peak",
+           xy=(peak_x, peak_y),          # point to annotate
+           xytext=(peak_x + 1, peak_y + 0.1),  # text position
+           arrowprops=dict(arrowstyle="->"))
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Style and Aesthetics}
+\label{sec:style}
+
+\subsection{Built-in Styles}
+
+\begin{lstlisting}
+print(plt.style.available)  # see all styles
+
+plt.style.use("seaborn-v0_8-whitegrid")
+# or
+plt.style.use("ggplot")
+\end{lstlisting}
+
+\subsection{Custom RC Parameters}
+
+\begin{lstlisting}
+plt.rcParams["figure.figsize"] = (8, 6)
+plt.rcParams["font.size"] = 12
+plt.rcParams["axes.labelsize"] = 14
+plt.rcParams["lines.linewidth"] = 2
+\end{lstlisting}
+
+\subsection{Publication-Ready Settings}
+
+\begin{lstlisting}
+# Settings for journal figures
+plt.rcParams.update({
+    "figure.figsize": (3.5, 2.5),   # single column width
+    "font.size": 8,
+    "axes.labelsize": 9,
+    "axes.titlesize": 9,
+    "legend.fontsize": 7,
+    "xtick.labelsize": 7,
+    "ytick.labelsize": 7,
+    "font.family": "sans-serif",
+    "figure.dpi": 300
+})
+\end{lstlisting}
+
+% ----------------------------------------------------------------------------
+\section{Specialized Plots}
+\label{sec:specialized}
+
+\subsection{Contour Plots}
+
+\begin{lstlisting}
+x = np.linspace(-3, 3, 100)
+y = np.linspace(-3, 3, 100)
+X, Y = np.meshgrid(x, y)
+Z = np.sin(X) * np.cos(Y)
+
+plt.contour(X, Y, Z, levels=10)
+plt.colorbar()
+\end{lstlisting}
+
+\begin{center}
+\includegraphics[width=0.6\textwidth]{figures/chap10/contour.pdf}
+\end{center}
+
+Filled contours use color to show values between contour lines:
+
+\begin{lstlisting}
+# Filled contours
+plt.contourf(X, Y, Z, levels=20, cmap="RdBu_r")
+plt.colorbar()
+\end{lstlisting}
+
+\begin{center}
+\includegraphics[width=0.6\textwidth]{figures/chap10/contourf.pdf}
+\end{center}
+
+\subsection{Heatmaps}
+
+\begin{lstlisting}
+data = np.random.rand(10, 10)
+
+plt.imshow(data, cmap="viridis", aspect="auto")
+plt.colorbar(label="Value")
+plt.xlabel("Column")
+plt.ylabel("Row")
+\end{lstlisting}
+
+\begin{center}
+\includegraphics[width=0.6\textwidth]{figures/chap10/heatmap.pdf}
+\end{center}
+
+\subsection{Box Plots}
+
+\begin{lstlisting}
+data = [np.random.randn(100) + i for i in range(4)]
+
+plt.boxplot(data, labels=["A", "B", "C", "D"])
+plt.ylabel("Value")
+\end{lstlisting}
+
+\begin{center}
+\includegraphics[width=0.6\textwidth]{figures/chap10/boxplot.pdf}
+\end{center}
+
+% ----------------------------------------------------------------------------
+\section{A Complete Figure Example}
+\label{sec:complete-figure}
+
+\begin{lstlisting}
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Generate sample spectroscopy data
+wavelengths = np.linspace(400, 700, 150)
+spectrum1 = np.exp(-((wavelengths - 500)**2) / 1000) * 0.8
+spectrum2 = np.exp(-((wavelengths - 550)**2) / 800) * 0.6
+spectrum3 = np.exp(-((wavelengths - 480)**2) / 1200) * 0.9
+
+# Create figure
+fig, axes = plt.subplots(2, 1, figsize=(8, 6), sharex=True)
+
+# Top panel: raw spectra
+ax1 = axes[0]
+ax1.plot(wavelengths, spectrum1, label="Sample A")
+ax1.plot(wavelengths, spectrum2, label="Sample B")
+ax1.plot(wavelengths, spectrum3, label="Sample C")
+ax1.set_ylabel("Absorbance (AU)")
+ax1.legend(loc="upper right")
+ax1.set_title("UV-Vis Spectra Comparison")
+
+# Bottom panel: difference spectrum
+ax2 = axes[1]
+difference = spectrum1 - spectrum2
+ax2.plot(wavelengths, difference, "k-")
+ax2.axhline(y=0, color="gray", linestyle="--", alpha=0.5)
+ax2.set_ylabel("Difference (A - B)")
+ax2.set_xlabel("Wavelength (nm)")
+
+# Add peak annotations
+peak_idx = np.argmax(spectrum1)
+ax1.annotate(f"Peak: {wavelengths[peak_idx]:.0f} nm",
+            xy=(wavelengths[peak_idx], spectrum1[peak_idx]),
+            xytext=(wavelengths[peak_idx] + 50, spectrum1[peak_idx] + 0.05),
+            arrowprops=dict(arrowstyle="->", color="gray"))
+
+plt.tight_layout()
+plt.savefig("spectra_comparison.pdf", bbox_inches="tight")
+plt.show()
+\end{lstlisting}
+
+\begin{center}
+\includegraphics[width=0.85\textwidth]{figures/chap10/spectra_complete.pdf}
+\end{center}
+
+% ----------------------------------------------------------------------------
+\section{Chapter Summary}
+\label{sec:matplotlib-summary}
+
+Matplotlib creates publication-quality figures:
+
+\begin{itemize}
+    \item \textbf{Basic:} \py{plt.plot()}, \py{plt.scatter()}, \py{plt.bar()}, \py{plt.hist()}
+    \item \textbf{Labels:} \py{plt.xlabel()}, \py{plt.ylabel()}, \py{plt.title()}, \py{plt.legend()}
+    \item \textbf{Subplots:} \py{fig, axes = plt.subplots(rows, cols)}
+    \item \textbf{Customization:} colors, line styles, markers, axes limits
+    \item \textbf{Saving:} \py{plt.savefig("file.pdf", dpi=300)}
+    \item \textbf{Styles:} \py{plt.style.use()}, \py{plt.rcParams}
+\end{itemize}
+
+\begin{ponder}
+\begin{enumerate}
+    \item When would you use \py{plt.plot()} vs \py{plt.scatter()}?
+    \item Why save figures as PDF rather than PNG for publications?
+    \item How would you create a figure with 3 subplots in a row?
+    \item What's the advantage of the object-oriented interface (\py{fig, ax = plt.subplots()})?
+\end{enumerate}
+\end{ponder}
