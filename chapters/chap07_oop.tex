@@ -336,6 +336,123 @@ print(f"Ka = {acetic.Ka():.2e}")  # Ka = 1.74e-05
 \end{itemize}
 
 % ----------------------------------------------------------------------------
+\section{Decorators and Dataclasses}
+\label{sec:decorators-dataclasses}
+
+When reading Python code, you'll encounter the \py{@} symbol above function or class definitions. This is \emph{decorator} syntax---a way to modify or enhance functions and classes.
+
+\subsection{What Are Decorators?}
+
+A decorator is a function that takes another function (or class) and returns a modified version of it. The \py{@decorator} syntax is shorthand:
+
+\begin{lstlisting}
+@some_decorator
+def my_function():
+    pass
+
+# This is equivalent to:
+def my_function():
+    pass
+my_function = some_decorator(my_function)
+\end{lstlisting}
+
+You don't need to write your own decorators, but you'll \emph{use} many from libraries. Common examples include \py{@property}, \py{@staticmethod}, and \py{@classmethod} in classes, plus countless decorators in frameworks like Flask or pytest.
+
+\subsection{The @dataclass Decorator}
+
+Python's \py{dataclasses} module provides a decorator that automatically generates common methods for classes that primarily store data:
+
+\begin{lstlisting}
+from dataclasses import dataclass
+
+@dataclass
+class Element:
+    symbol: str
+    name: str
+    atomic_number: int
+    atomic_mass: float
+
+# The decorator automatically creates:
+# - __init__ (so you can write Element("C", "Carbon", 6, 12.011))
+# - __repr__ (nice string representation)
+# - __eq__ (comparison by values)
+
+carbon = Element("C", "Carbon", 6, 12.011)
+print(carbon)
+# Element(symbol='C', name='Carbon', atomic_number=6, atomic_mass=12.011)
+
+oxygen = Element("O", "Oxygen", 8, 15.999)
+print(carbon == oxygen)  # False
+\end{lstlisting}
+
+Compare this to the manual version, which requires much more code:
+
+\begin{lstlisting}
+class Element:
+    def __init__(self, symbol, name, atomic_number, atomic_mass):
+        self.symbol = symbol
+        self.name = name
+        self.atomic_number = atomic_number
+        self.atomic_mass = atomic_mass
+
+    def __repr__(self):
+        return (f"Element(symbol='{self.symbol}', name='{self.name}', "
+                f"atomic_number={self.atomic_number}, "
+                f"atomic_mass={self.atomic_mass})")
+
+    def __eq__(self, other):
+        return (self.symbol == other.symbol and
+                self.name == other.name and
+                self.atomic_number == other.atomic_number and
+                self.atomic_mass == other.atomic_mass)
+\end{lstlisting}
+
+\begin{labexample}
+Dataclasses are perfect for scientific metadata:
+
+\begin{lstlisting}
+from dataclasses import dataclass
+from datetime import datetime
+
+@dataclass
+class Measurement:
+    sample_id: str
+    value: float
+    uncertainty: float
+    timestamp: datetime
+    instrument: str = "UV-Vis"  # default value
+
+reading = Measurement(
+    sample_id="S001",
+    value=0.452,
+    uncertainty=0.003,
+    timestamp=datetime.now()
+)
+print(reading)
+\end{lstlisting}
+\end{labexample}
+
+\subsection{Dataclasses vs Regular Classes}
+
+Use a \textbf{dataclass} when:
+\begin{itemize}
+    \item The class primarily holds data
+    \item You want automatic \py{__init__}, \py{__repr__}, \py{__eq__}
+    \item Behavior is minimal or straightforward
+\end{itemize}
+
+Use a \textbf{regular class} when:
+\begin{itemize}
+    \item You need complex initialization logic
+    \item The class has significant custom behavior
+    \item You need fine control over special methods
+\end{itemize}
+
+\begin{tip}
+When in doubt, start with a dataclass. You can always convert to a regular class later if you need more control. Dataclasses reduce boilerplate and make your intent clear: ``this class is primarily a data container.''
+\end{tip}
+
+% ----------------------------------------------------------------------------
 \section{When to Use Classes}
 \label{sec:when-classes}
 
