@@ -635,6 +635,94 @@ A complete experiment record:
 \end{lstlisting}
 \end{labexample}
 
+
+\section{Variables Are Labels, Not Boxes}
+\label{sec:aliasing}
+
+Here's a mental model that will prevent many bugs: variables in Python are \emph{labels} attached to objects, not boxes that contain values. When you write \py{x = 5}, you're not putting 5 into a box called \py{x}---you're attaching the label \py{x} to the number 5.
+
+This distinction matters when you assign one variable to another:
+
+\begin{lstlisting}
+>>> a = [1, 2, 3]
+>>> b = a           # b is now another label for the SAME list
+>>> b.append(4)
+>>> a
+[1, 2, 3, 4]        # a changed too!
+\end{lstlisting}
+
+This surprises many beginners. The line \py{b = a} doesn't copy the list---it creates a second label pointing to the same list in memory. Modifying through \py{b} affects \py{a} because they're the same object.
+
+You can check if two variables refer to the same object using \py{is}:
+
+\begin{lstlisting}
+>>> a = [1, 2, 3]
+>>> b = a
+>>> b is a
+True              # same object
+>>> c = [1, 2, 3]
+>>> c is a
+False             # different object (even though values are equal)
+>>> c == a
+True              # equal values, different objects
+\end{lstlisting}
+
+The \py{==} operator checks if values are equal. The \py{is} operator checks if they're the exact same object in memory.
+
+\begin{note}
+This aliasing behavior applies to \emph{mutable} objects---things that can be changed after creation, like lists and dictionaries. For \emph{immutable} objects like numbers, strings, and tuples, you can't modify them in place, so aliasing rarely causes problems. When you ``change'' a number, you're really creating a new number and re-attaching the label.
+\end{note}
+
+\subsubsection{Making Actual Copies}
+
+To create an independent copy, use the \py{copy} module:
+
+\begin{lstlisting}
+>>> import copy
+>>> original = [1, 2, 3]
+>>> shallow = copy.copy(original)
+>>> shallow.append(4)
+>>> original
+[1, 2, 3]         # original unchanged
+\end{lstlisting}
+
+For nested structures (lists containing lists), you need \py{deepcopy}:
+
+\begin{lstlisting}
+>>> original = [[1, 2], [3, 4]]
+>>> shallow = copy.copy(original)
+>>> deep = copy.deepcopy(original)
+
+>>> shallow[0].append(99)
+>>> original
+[[1, 2, 99], [3, 4]]   # shallow copy shares inner lists!
+
+>>> deep[1].append(100)
+>>> original
+[[1, 2, 99], [3, 4]]   # deep copy is fully independent
+\end{lstlisting}
+
+\begin{labexample}
+This aliasing trap commonly appears when processing experimental data:
+
+\begin{lstlisting}
+# Dangerous: both variables point to same data
+raw_data = [0.12, 0.25, 0.31, 0.42]
+processed = raw_data        # NOT a copy!
+processed[0] = 0            # "fix" first point
+print(raw_data)             # [0, 0.25, 0.31, 0.42] - raw data corrupted!
+
+# Safe: make an explicit copy
+import copy
+raw_data = [0.12, 0.25, 0.31, 0.42]
+processed = copy.copy(raw_data)
+processed[0] = 0
+print(raw_data)             # [0.12, 0.25, 0.31, 0.42] - preserved
+\end{lstlisting}
+
+Always copy data before modifying it if you need to preserve the original.
+\end{labexample}
+
 % ----------------------------------------------------------------------------
 \section{Chapter Summary}
 \label{sec:containers-summary}
