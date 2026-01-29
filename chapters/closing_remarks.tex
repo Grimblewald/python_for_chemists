@@ -41,13 +41,95 @@ As your projects grow, these practices will save you time and headaches:
     \item Explore Jupyter notebooks for interactive analysis
 \end{itemize}
 
-
-
 \subsection{Practice}
 
 The best way to learn is to use Python for something you actually care about. Pick a dataset from your research. Automate something tedious. Recreate a figure from a paper. Break things, fix them, and learn by doing.
 
 You now have enough foundation to teach yourself the rest.
+
+\subsection{AI in the Scientific Workflow}
+\label{sec:ai-usage}
+
+\begin{note}
+    Large Language Models (LLMs) are powerful assistive technologies, but they reward prepared minds disproportionately. This section offers suggestions for integrating them into your learning without undermining the skill development that makes you an independent researcher.
+\end{note}
+
+\noindent As you progress, you will inevitably encounter LLMs (AI chatbots) in your coding workflow. When used developmentally, they can accelerate your transition from syntax memorization to architectural thinking. Used prematurely, they can create an illusion of competence that fragments under scrutiny. The goal is to harness the former while avoiding the latter.
+
+\subsubsection*{Understanding the Tool}
+Think of an LLM as an \textit{ontological cartographer}---a system that maps relationships between concepts based on statistical patterns across text, rather than experiential understanding. 
+
+You understand a ``reaction mechanism'' through laboratory experience, which carries a lot of information we never care to encode in language. The model understands ``reaction mechanism'' only in so far as can be derived from what we cared to capture using language. This is not a limitation to resent but a translation layer to manage. The model translates between linguistic representations of concepts; you must provide the physical-world verification.
+
+\begin{ponder}
+Think about how much is left unsaid in literature methods sections, or lab manuals. How could you expect a thing which lives in a world defined entirely by these incomplete captures to match your depth of comprehension of the topics?
+\end{ponder}
+
+\begin{warning}
+An LLM cannot improve the quality of your question---it can only elaborate upon it. If you formulate a concept's question representation vaguely, that vagueness is a part of the concept you are invoking. So, when the LLM translates the concept to it's answer representation, quality predictably suffers. To win, you must understand the domain well enough to formulate good questions and evaluate the answers. For automated script writing, AI is most helpful when you are already proficient, not when you are a complete novice.
+\end{warning}
+
+\subsubsection*{A Developmental Framework}
+
+Rather than viewing AI as forbidden or universally permitted, consider this progression:
+
+\begin{enumerate}
+    \item \textbf{Foundation Phase (Avoid generation, embrace explanation)} \\
+    When learning a new library (e.g., your first RDKit script or lmfit model), do not ask the AI to write the code. Instead, write your own attempt, then use AI to:
+    \begin{itemize}
+        \item Explain error tracebacks in plain language
+        \item Compare your approach to idiomatic patterns
+        \item Suggest documentation sections you may have missed
+    \end{itemize}
+    
+    \item \textbf{Apprenticeship Phase (Pair programming)} \\
+    Once you can write working but inelegant code, use AI as a collaborative reviewer:
+    \begin{itemize}
+        \item Refactor working scripts for readability
+        \item Vectorize slow loops you have already prototyped
+        \item Generate unit tests for functions you have written
+    \end{itemize}
+    
+    \item \textbf{Independence Phase (Managed delegation)} \\
+    When you could write the code yourself but time is constrained, delegate with oversight:
+    \begin{itemize}
+        \item Generate boilerplate for familiar patterns, then audit line-by-line
+        \item Prototype alternative algorithms you already understand conceptually
+        \item Document code you have written (reverse the typical workflow)
+    \end{itemize}
+\end{enumerate}
+
+\begin{tip}
+\textbf{The explain-it-back Rule} \\
+Before submitting any AI-assisted code, apply the laboratory notebook standard: could you explain this snippet to a labmate during group meeting? If not, treat it as a learning opportunity, not a submission. Open a separate file, break the code into chunks, and annotate each line until the logic is transparent.
+\end{tip}
+
+\subsubsection*{Mentorship and Cognitive Load}
+
+Novice code written by humans has predictable error patterns---syntax mistakes, logical gaps, misconception signatures. These are diagnostically valuable; a mentor can identify the underlying confusion quickly, turning debugging into targeted teaching.
+
+AI-generated novice code lacks these tell-tale patterns. It appears plausible but fails in subtle ways (e.g., using deprecated matplotlib arguments that still run but produce wrong chemical visualisations). This creates asymmetric debugging: you learn nothing, while your mentor expends disproportionate effort uncovering the error.
+
+The solution is transparency, not avoidance. When seeking help with AI-assisted code:
+\begin{itemize}
+    \item Present your original attempt alongside the AI version
+    \item Highlight specific lines you do not fully understand
+    \item Ask: ``What conceptual gaps would cause this type of error?'' rather than just ``Fix this.''
+\end{itemize}
+This transforms the interaction from resentment-generating noise into a diagnostic dialogue about your reasoning.
+
+\subsubsection*{Speed vs.\ Velocity}
+
+It is tempting to view AI as a productivity multiplier, but in skill acquisition, velocity matters more than speed. Velocity implies direction; speed merely measures motion. 
+
+Writing a script manually might take four hours; with AI, forty minutes. But if the manual process taught you to recognise array broadcasting errors, you have gained velocity---the next similar task takes thirty minutes regardless of AI assistance. If you skipped the struggle, you remain dependent on the tool for identical tasks forever.
+
+\textit{Slow is smooth, and smooth is fast.} Master the concept at a pace that allows comprehension, \textit{then} use AI to accelerate implementation of what you genuinely understand.
+
+\begin{warning}
+\textbf{Reputation and Ownership} \\
+In professional contexts---industry R\&D, graduate research groups, collaborative publications---your code represents your scientific rigour. Submitting opaque AI-generated scripts that fail under review signals unreliable judgement. Conversely, demonstrating fluency in explaining, verifying, and modifying AI-assisted workflows signals mature computational literacy. The tool is neutral; your stewardship of it is not.
+\end{warning}
 
 \subsection{Where to Get Help}
 If you do get stuck (and you will be---everyone does) in order of quality:
@@ -57,27 +139,8 @@ If you do get stuck (and you will be---everyone does) in order of quality:
     \item \textbf{Stack Overflow} --- Search before asking. Your error message has almost certainly been answered.
     \item \textbf{GitHub Issues} --- For package-specific bugs or feature questions.
     \item \textbf{Reddit} --- r/learnpython is friendly to beginners; r/Python for general discussion.
-	\item \textbf{Chat-bots}---Undeniably useful, even if these can be problematic. Use with caution, and don't accept code you don't understand. These are a double-edged blade, you WILL get cut using these.
+	\item \textbf{Chat-bots}---Undeniably useful, even if these can be problematic. Use with caution, and don't accept code you don't understand. These are a double-edged blade, and you WILL get cut using these.
 \end{itemize}
-
-\begin{warning}
-While AI chatbots can be helpful, they are a double-edged sword for beginners. To get a functional result, you often have to describe your problem in such extreme detail that you might as well have written the code yourself. In fact, Python is likely the most efficient language for that description, so with the description done, you have what you wanted. 
-
-Anything less than a perfect prompt usually results in "black box" code: bloated, difficult to debug, and hard to learn from. However, they can be excellent tools if used as a \textbf{reference} rather than a \textbf{ghostwriter}. Chat-bots give you speed, and so if you're bad at the task, now you're just bad faster. Do not mistake speed for efficiency or effectiveness.
-
-\textbf{Chatbots may be effective for:}
-\begin{itemize}
-    \item \textbf{Search:} ``Is there a NumPy function that calculates the standard deviation?''
-    \item \textbf{Syntax:} ``How do I format a f-string to show two decimal places?''
-    \item \textbf{Error Decoding:} Pasting an error message to get a plain-English explanation of what it means. \textbf{AFTER} you have tried to understand yourself a few times. Do not default to a bot when running into problems, it robs you of skills and experiences that are worth more than whatever deadline feels important right now.
-\end{itemize}
-
-\textbf{Avoid Chatbots for:}
-\begin{itemize}
-    \item \textbf{Logic:} Asking it to write a whole script. You lose the "mental muscle" built by solving the puzzle yourself. Besides, given what you do, you are quite likely better at logic than a chat-bot.
-    \item \textbf{Debugging:} Letting it guess fixes for your code. You will often spend more time trying to fix the chatbot's "fix" than if you had used \texttt{print()} statements to find the bug yourself.
-\end{itemize}
-\end{warning}
 
 \vfill
 \begin{center}
