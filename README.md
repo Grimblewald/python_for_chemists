@@ -1,3 +1,7 @@
+# TODO
+- [ ] cover einsum notation and numba for making pyrhon kogic fast (possibly both under numpy, or maybe do numba seperately?)
+- [ ] improve installation instructions, things are ambigious atm, make clearer conceptual splits and be clearer about when sometying is theory and when students shoulf follow along with something.
+- [ ] 
 # Python and Computational Thinking: A Crash Course for Scientists
 
 A comprehensive LaTeX book teaching Python programming to scientists with no prior programming experience.
