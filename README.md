@@ -9,6 +9,7 @@
 - [ ] Continue looking for verbose chunks to make more concise
 - [ ] Keep polishing to align better with proposed contribution values
 - [ ] remove hardcoded python from text, into python files that are inserted to text via \input, this way we can test scripts and outputs, among other benefits.
+- [ ] fix broken figures (e.g. some labels are floating outside of zone etc. hardly fit for the publicaiton figure readyness this book aims to teach.
 
 # Python and Computational Thinking: A Crash Course for Scientists
 
