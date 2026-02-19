@@ -1,7 +1,8 @@
 # TODO
 - [ ] cover einsum notation and numba for making pyrhon kogic fast (possibly both under numpy, or maybe do numba seperately?)
-- [ ] improve installation instructions, things are ambigious atm, make clearer conceptual splits and be clearer about when sometying is theory and when students shoulf follow along with something.
-- [ ] 
+- [ ] improve installation instructions, things are ambiguous atm, make clearer conceptual splits and be clearer about when something is theory and when students should follow along with something. It should be clear when we are mentioning things that exist, which student's don't need to do right now (e.g. installing jupyter etc) vs what needs to be done to be ready for the next chapter (have a python interpreter of an appropriate version, 3.10+, installed). Perhaps I should add screenshots of what some things like REPL look like in the first chapter?
+- [ ] Add more explanations for some things, e.g. in chap00_setup.tex under subsection "Activating the Environment" for the warning starting with "If you get an error about “execution policies” on Windows PowerShell, run this command first (as administrator):" I got this comment "I'm not sure what this means" with a line pointing at the word administrator. So perhaps we need explain it? or just recommend using regular command prompt instead?
+
 # Python and Computational Thinking: A Crash Course for Scientists
 
 A comprehensive LaTeX book teaching Python programming to scientists with no prior programming experience.
