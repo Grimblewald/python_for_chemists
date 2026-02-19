@@ -344,12 +344,12 @@ This tells \py{python} to use a module (\py{-m}) called \py{venv} to create a vi
 
 \subsection{Activating the Environment}
 
-Before using the environment, you must activate it:
+Before using the environment, you must activate it. Make sure your prompt shows the file-path your virtual environment is in then enter:
 
 \begin{osbox}
 \textbf{Windows (PowerShell):}
 \begin{lstlisting}[style=shellstyle]
-.\venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 \end{lstlisting}
 
 \textbf{Windows (Command Prompt):}
@@ -363,25 +363,30 @@ source .venv/bin/activate
 \end{lstlisting}
 \end{osbox}
 
-\begin{note}
-Remeber that our virtual environment folder is called \filepath{.venv} not \filepath{venv}.
-\end{note}
+Remembering to use the exact name you gave your virtual environment. If you have been doing as I suggest, it should called \filepath{.venv} not \filepath{venv}. It is fine if it is called \filepath{venv}, or even \filepath{XaswefasDgfasdP}---while I recommend clean and informative names, it is ultimately up to you. Virtual environments are specific to the machine they were created on, and so should not be copied or shared. Therefore your virtual environment naming conventions should only ever impact you.
 
-When activated, your prompt changes to show the environment name:
+When activated, your prompt should change to show the environment name. As an example, if you are using PowerShell on windows, you will see something like this:
 
 \begin{lstlisting}[style=shellstyle]
 (venv) PS C:\Users\yourname\Documents\python_projects\learning>
 \end{lstlisting}
 
-That \shell{(venv)} prefix means you're in the virtual environment. Any packages you install now go into this environment only.
+That \shell{(venv)} prefix means the virtual environment is active. Any packages you install or code you execute will now use the packages and python version from this specific environment.
 
-\begin{warning}
-If you get an error about ``execution policies'' on Windows PowerShell, run this command first (as administrator):
+\begin{osbox}
+Windows blocks PowerShell scripts by default. So if you get an error about executing scripts, you can fix this by either using the command prompt instead, or doing the following:
+\begin{enumerate}
+    \item Close PowerShell.
+    \item Right-click the PowerShell icon and select \textbf{Run as Administrator}. 
+    \item Click \textbf{Yes} on the pop-up.
+    \item Type this command and press Enter:
 \begin{lstlisting}[style=shellstyle]
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 \end{lstlisting}
-Then try activating again.
-\end{warning}
+    \item Type \shell{Y} when asked.
+\end{enumerate}
+You can now close this window and go back to your normal PowerShell. You only have to do this once!
+\end{osbox}
 
 \subsection{Installing Packages}
 
