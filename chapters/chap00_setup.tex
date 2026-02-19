@@ -4,7 +4,9 @@
 \chapter{Setting Up Your Environment}
 \label{chap:setup}
 
-Before writing any code, you need a working Python installation and a sensible way to organise your files. This chapter covers both. It's tempting to skip ahead to ``real'' programming, but a broken setup will frustrate you later. Invest an hour now; save countless hours tracking down environment problems.
+Before writing any code, you need a working Python installation. This chapter has two parts: the essentials you need to start (Sections~\ref{sec:why-program} through~\ref{sec:venv}), and additional information, tips, tools, and practices for those interested (everything after).
+
+To jump straight into Chapter~\ref{chap:basics}, complete only need to complete the essential sections. They should take 15--30 minutes and will give you everything needed to learn to use Python.
 
 % ----------------------------------------------------------------------------
 \section{Why Scientists Program}
@@ -12,13 +14,13 @@ Before writing any code, you need a working Python installation and a sensible w
 
 You already know how to analyse data. You've used Excel, maybe Origin or Igor Pro. You can make graphs and calculate statistics. So why learn to program?
 
-\textbf{Reproducibility.} When you analyse data by clicking through menus, the process lives only in your memory. Three months later, a reviewer asks how you normalised those spectra. Good luck remembering which buttons you clicked. A \emph{script}---a text file containing instructions for the computer---documents every step. Run it again and you get exactly the same result.
+\textbf{Reproducibility.} When you analyse data by clicking through menus, the process lives only in your memory. Imagine months or even years later, someone asks how you normalised some data, which for some reason was a process everyone missed as missing in your methods. Good luck remembering which buttons you clicked, or perhaps even what software was used. A \emph{script}---a text file containing instructions for the computer---documents every step explicitly. Run it again and you get exactly the same result. You are essentially documenting your methods AND doing your analysis at the same time, while getting early warning that you forgot to document something, because your outputs wont be correct. This saves you a lot of time and effort.
 
-\textbf{Automation.} You have 200 data files from a week of measurements. Processing them one by one takes hours. A script processes them in seconds---and doesn't make mistakes at file 187 because it's tired.
+\textbf{Automation.} You have 200 data files. Processing these one by one manually takes hours, weeks or even years. A script can processes them in seconds---and doesn't make mistakes at file 187 because it's tired. Say you finished half your files, only to realise you missed a step half-way through the process, now you have to start again. With a script you simply update the methodological error, and re-run.
 
-\textbf{Flexibility.} Commercial software does what its developers anticipated. Your analysis might need something unusual: a custom baseline correction, a niche fitting function, or a way to merge data from three different instruments. With programming, you build exactly what you need.
+\textbf{Flexibility.} Commercial software does what its developers anticipated consumers need. Your analysis might need something unusual: a custom baseline correction, a niche fitting function, or a way to merge data from three different instruments. With programming, you build exactly what you need.
 
-\textbf{Figures.} Publication-quality figures require control over every detail: axis labels, font sizes, colour schemes, subplot layouts. Matplotlib gives you that control. Once you write the code for a figure style you like, every future paper uses the same polished look.
+\textbf{Figures.} Publication-quality figures require control over every detail: axis labels, font sizes, colour schemes, subplot layouts. Programming gives you that control. Once you write the code for a figure style you like, every future paper you write can use the same polished look.
 
 \begin{labexample}
 Imagine you collect UV-Vis spectra weekly to monitor a reaction. Each measurement produces a file. By the end of the project, you have 50 files. A Python script can:
@@ -29,81 +31,48 @@ Imagine you collect UV-Vis spectra weekly to monitor a reaction. Each measuremen
     \item Plot the results vs. time
     \item Export the processed data and figure
 \end{itemize}
-When your advisor asks ``What if we use a different baseline method?''---you change one line and re-run.
+When asked ``What if we tried this novel baseline method?''---you simply change your baseline correction line/s and re-run. Now investigating promising alternatives is no longer locked behind an effort threshold. Or, say you have a script that does what is required, you can get your analysis as the data is being produced, giving you early insights and feedback. Maybe this lets you terminate a set of experiments early, or warns you something is wrong with conditions, before you waste time and resources on more useless data. The list of benefits goes on and on, your creativity being the only real limit.
 \end{labexample}
-
-% ----------------------------------------------------------------------------
-\section{Computer Hygiene}
-\label{sec:hygiene}
-
-Before installing anything, let's establish some habits that prevent future headaches.
-
-\subsection{Folder Organisation}
-
-Create a dedicated folder for your programming work. Don't scatter scripts across your Desktop, Downloads, and random project folders. Something like:
-
-\begin{lstlisting}[style=shellstyle]
-Documents/
-    python_projects/
-        learning/           # exercises from this book
-        lab_analysis/       # your research scripts
-        utilities/          # small helper scripts
-\end{lstlisting}
-
-Within each project, keep a consistent structure:
-
-\begin{lstlisting}[style=shellstyle]
-titration_project/
-    data/               # raw data files (never modify these)
-    output/             # processed data, figures
-    scripts/            # your Python code
-    README.txt          # notes about what this project does
-\end{lstlisting}
-
-\begin{warning}
-Never put spaces in folder or file names used with code. Use underscores instead: \filepath{titration\_data.csv}, not \filepath{titration data.csv}. Spaces cause problems with many programming tools.
-\end{warning}
-
-\subsection{File Naming}
-
-Good file names are:
-\begin{itemize}
-    \item Descriptive: \filepath{analyze\_kinetics.py}, not \filepath{script1.py}
-    \item Dated when relevant: \filepath{calibration\_2024\_03\_15.csv}
-    \item Consistent: pick a convention and stick with it
-\end{itemize}
-
-\subsection{Backup}
-
-Your code represents hours of work. Back it up. Options:
-
-\begin{itemize}
-    \item Cloud sync (Dropbox, OneDrive, Google Drive): automatic, easy
-    \item Git: a system that tracks every change you make to files, letting you undo mistakes and see your project's history. Best for code, but has a steeper learning curve.
-    \item External drive: simple but requires discipline
-\end{itemize}
-
-At minimum, use cloud sync for your \filepath{python\_projects} folder. We'll discuss Git later---it's worth learning, but not today.
 
 \section{Paths}
 \label{sec:paths}
 
-A \emph{path} is the address of a file on your computer. There are two types:
+To tell Python where to find your data, you need to provide a \emph{path}---the digital address of a file or folder (also called a "directory") on your computer. 
 
 \begin{itemize}
-    \item \textbf{Absolute path:} Full address from the root of the filesystem
+    \item \textbf{Absolute path:} The full address starting from the very "root" (for example, your hard drive). 
     \begin{itemize}
         \item Windows: \filepath{C:\textbackslash Users\textbackslash Alice\textbackslash Documents\textbackslash data.txt}
         \item macOS/Linux: \filepath{/home/alice/Documents/data.txt}
     \end{itemize}
-    \item \textbf{Relative path:} Address relative to your current working directory
+    \item \textbf{Relative path:} The address relative to where you are \emph{right now} (your "Working Directory").
     \begin{itemize}
-        \item \filepath{data.txt} (file in current directory)
-        \item \filepath{data/measurements.txt} (in a subfolder)
-        \item \filepath{../other\_project/data.txt} (\filepath{..} means parent directory)
+        \item \textbf{Windows} (uses backslashes \filepath{\textbackslash}):
+            \begin{itemize}
+            \item \filepath{config.txt} (In your current folder)
+            \item \filepath{data\textbackslash spectrum.csv} (In the sub-folder "data")
+            \item \filepath{..\textbackslash results.csv} (\filepath{..} means "go up one folder")
+            \end{itemize}
+        \item \textbf{macOS/Linux} (uses forward slashes \filepath{/}):
+            \begin{itemize}
+            \item \filepath{config.txt} (In your current folder)
+            \item \filepath{data/spectrum.csv} (In the sub-folder "data")
+            \item \filepath{../results.csv} (\filepath{..} means "go up one folder")
+            \end{itemize}
     \end{itemize}
 \end{itemize}
 
+Think of slashes as the boundaries between folders. Every time you double-click a folder in a file browser, you are essentially adding a slash and a folder name to the path. Because slashes are "boundary markers," you cannot use them when naming a file or folder.
+
+\begin{note}
+Absolute paths may feel "safer" because they always point to the same place. However, if you send your code to a colleague, an absolute path like \filepath{C:\textbackslash Users\textbackslash Fritz...} will break on \emph{their} computer because they (probably) aren't also "Fritz." Relative paths are preferred for projects so that code will run as expected when moved between computers.
+\end{note}
+
+\begin{osbox}
+\textbf{The Slash Direction:} Windows is the only major system that uses the backslash (\filepath{\textbackslash}). All other systems, and the internet, use the forward slash (\filepath{/}). If you see \filepath{./} at the start of a path, the dot simply means "the current folder." 
+
+\textbf{Note:} While I will use Linux-style forward slashes (\filepath{/}) throughout the remainder of this book, Windows users should mentally swap them for backslashes (\filepath{\textbackslash}) when typing commands into their terminal.
+\end{osbox}
 
 % ----------------------------------------------------------------------------
 \section{Installing Python}
@@ -119,7 +88,7 @@ Installation differs slightly by operating system. Follow the section for your s
 
 \begin{enumerate}
     \item Go to \url{https://www.python.org/downloads/}
-    \item Click the big yellow ``Download Python'' button (for this book, get version 3.10 or later, though generally not the latest)
+    \item Click the big yellow ``Download Python'' button (for this book, get version 3.10 or later, though generally not the very latest)
     \item Run the installer
     \item \textbf{Important:} Check the box that says ``Add Python to PATH''
     \item Click ``Install Now''
@@ -439,6 +408,70 @@ The \shell{(venv)} prefix disappears. You're back to the system Python.
 \begin{tip}
 Always activate your project's virtual environment before working. Make it a habit, like putting on safety glasses before entering the lab. Many ``my code stopped working'' problems are just forgotten activation.
 \end{tip}
+
+% ============================================================================
+% PART 2: ADDITIONAL RESOURCES, TOOLS, AND BEST PRACTICES
+% ============================================================================
+
+\section*{Part 2: Additional Resources, Tools, and Best Practices}
+
+You've now completed the essential setup. Everything that follows covers optional tools, alternatives, and best practices that enhance your workflow. You can read these sections at your own pace, or skip them entirely if you're eager to start learning Python in Chapter~\ref{chap:basics}. You can always return to them later when you need them.
+
+% ============================================================================
+% PART 2 CONTENT BEGINS
+% ============================================================================
+
+\section{Computer Hygiene}
+\label{sec:hygiene}
+
+Before installing anything, let's establish some habits that prevent future headaches.
+
+\subsection{Folder Organisation}
+
+Create a dedicated folder for your programming work. Don't scatter scripts across your Desktop, Downloads, and random project folders. Something like:
+
+\begin{lstlisting}[style=shellstyle]
+Documents/
+    python_projects/
+        learning/           # exercises from this book
+        lab_analysis/       # your research scripts
+        utilities/          # small helper scripts
+\end{lstlisting}
+
+Within each project, keep a consistent structure:
+
+\begin{lstlisting}[style=shellstyle]
+titration_project/
+    data/               # raw data files (never modify these)
+    output/             # processed data, figures
+    scripts/            # your Python code
+    README.txt          # notes about what this project does
+\end{lstlisting}
+
+\begin{warning}
+Never put spaces in folder or file names used with code. Use underscores instead: \filepath{titration\_data.csv}, not \filepath{titration data.csv}. Spaces cause problems with many programming tools.
+\end{warning}
+
+\subsection{File Naming}
+
+Good file names are:
+\begin{itemize}
+    \item Descriptive: \filepath{analyze\_kinetics.py}, not \filepath{script1.py}
+    \item Dated when relevant: \filepath{calibration\_2024\_03\_15.csv}
+    \item Consistent: pick a convention and stick with it
+\end{itemize}
+
+\subsection{Backup}
+
+Your code represents hours of work. Back it up. Options:
+
+\begin{itemize}
+    \item Cloud sync (Dropbox, OneDrive, Google Drive): automatic, easy
+    \item Git: a system that tracks every change you make to files, letting you undo mistakes and see your project's history. Best for code, but has a steeper learning curve.
+    \item External drive: simple but requires discipline
+\end{itemize}
+
+At minimum, use cloud sync for your \filepath{python\_projects} folder. You might also want to look into using Git, it's worth learning but explaining its use is beyond the scope of this book.
 
 % ----------------------------------------------------------------------------
 \section{Three Ways to Run Python Code}
