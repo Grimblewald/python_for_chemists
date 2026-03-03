@@ -6,7 +6,7 @@
 
 Before writing any code, you need a working Python installation. This chapter has two parts: the essentials you need to start (Sections~\ref{sec:why-program} through~\ref{sec:venv}), and additional information, tips, tools, and practices for those interested (everything after).
 
-To jump straight into Chapter~\ref{chap:basics}, complete only need to complete the essential sections. They should take 15--30 minutes and will give you everything needed to learn to use Python.
+To jump straight into Chapter~\ref{chap:basics}, you only need to complete the essential sections. They should take 15--30 minutes and will give you everything needed to learn to use Python.
 
 % ----------------------------------------------------------------------------
 \section{Why Scientists Program}
@@ -267,7 +267,7 @@ Python by itself can do basic things, but its real power comes from \emph{packag
 
 While you \emph{could} write your own statistical analysis tools from scratch, it is far more efficient to leverage the vast ecosystem of tools made available for free. For example, \textbf{NumPy} handles numerical computing, \textbf{Matplotlib} makes plots, and \textbf{Pandas} manages data tables. A major strength of Python is this community ecosystem. You'll install and use many of them.
 
-But here's the problem: different projects might need different versions of the same package. Project A needs a package called \py{NumPy} at version 1.24 because it has a new and improved function; Project B needs \py{NumPy} version 1.21 because it uses a depreciated function that isn't support the new version.
+But here's the problem: different projects might need different versions of the same package. Project A needs a package called \py{NumPy} at version 1.24 because it has a new and improved function; Project B needs \py{NumPy} version 1.21 because it uses a deprecated function that isn't supported in the new version.
 
 If you install packages globally (available everywhere on your computer), you can only have one version. Updating for Project A breaks Project B and vice-versa. This is called ``dependency hell,'' and it's why scientists often say ``I reinstalled Python and now nothing works.''
 
@@ -332,9 +332,9 @@ source .venv/bin/activate
 \end{lstlisting}
 \end{osbox}
 
-Remembering to use the exact name you gave your virtual environment. If you have been doing as I suggest, it should called \filepath{.venv} not \filepath{venv}. It is fine if it is called \filepath{venv}, or even \filepath{XaswefasDgfasdP}---while I recommend clean and informative names, it is ultimately up to you. Virtual environments are specific to the machine they were created on, and so should not be copied or shared. Therefore your virtual environment naming conventions should only ever impact you.
+Remember to use the exact name you gave your virtual environment. If you have been following my suggestion, it should be called \filepath{.venv} not \filepath{venv}. It is fine if it is called \filepath{venv}, or even \filepath{XaswefasDgfasdP}---while I recommend clean and informative names, it is ultimately up to you. Virtual environments are specific to the machine they were created on, and so should not be copied or shared. Therefore your virtual environment naming conventions should only ever impact you.
 
-When activated, your prompt should change to show the environment name. As an example, if you are using PowerShell on windows, you will see something like this:
+When activated, your prompt should change to show the environment name. As an example, if you are using PowerShell on Windows, you will see something like this:
 
 \begin{lstlisting}[style=shellstyle]
 (venv) PS C:\Users\yourname\Documents\python_projects\learning>
@@ -471,7 +471,7 @@ Your code represents hours of work. Back it up. Options:
     \item External drive: simple but requires discipline
 \end{itemize}
 
-At minimum, use cloud sync for your \filepath{python\_projects} folder. You might also want to look into using Git, it's worth learning but explaining its use is beyond the scope of this book.
+At minimum, use cloud sync for your \filepath{python\_projects} folder. Git is worth learning, but explaining its use is beyond the scope of this book.
 
 % ----------------------------------------------------------------------------
 \section{Three Ways to Run Python Code}
@@ -582,12 +582,11 @@ The best way to start is with a simple text editor. This might seem primitive, b
 \label{subsec:ide}
 
 \begin{tip}
-If you are totally new to Python, you can reduce the information overload by skipping this section for now---a good time to come back is after Chapter~\ref{chap:functions}. Don't worry, I'll remind you! \\
+If you are totally new to Python, you can reduce the information overload by skipping this section for now---a good time to come back is after Chapter~\ref{chap:functions}. Don't worry, I'll remind you!
 
-I promise you're not missing out; the opposite is true. I recommend starting with text editors and never giving them up entirely. IDEs bring a lot to the table, but they take a lot as well. \\
+I promise you're not missing out; the opposite is true. I recommend starting with text editors and never giving them up entirely. IDEs bring a lot to the table, but they take a lot as well.
 
-If you already know your way around an IDE and disagree, then consider this \texttt{tip} a \texttt{ponder} block. Begin by asking yourself if the friction of a no frills text editor might actually help \textbf{weaponize your divine laziness}.
-
+If you already know your way around an IDE and disagree, then consider this tip a ponder block. Begin by asking yourself if the friction of a no-frills text editor might actually help \textbf{weaponize your divine laziness}.
 \end{tip}
 
 An IDE (Integrated Development Environment) is an editor designed specifically for programming. It provides helpful features: syntax highlighting, automatic error detection, tools to explore variables while your code runs, and more. When you're ready to upgrade from a basic text editor, here are some popular options.
@@ -598,7 +597,7 @@ You could download it from \url{https://www.spyder-ide.org/} and install it usin
 
 \textbf{Visual Studio Code (VS Code):} Made by Microsoft, free, and extremely popular in the broader software development community (though not required). It is a general-purpose programming editor used for many languages. Download from \url{https://code.visualstudio.com/}. After installing, you'll need to add the Python extension: click the Extensions icon (four squares) in the sidebar, search for ``Python,'' and install it.
 
-\textbf{No IDE:} A plain old text editor like \texttt{nano}, \texttt{micro}, \texttt{vim}, or Notepad++ is perfectly serviceable. In fact, many scientists eventually work on remote supercomputers or cloud servers where graphical interfaces (like Spyder) aren't available. The ultimate IDE is your own mind. So, if you are comfortable editing plain text, you can work anywhere---on a powerful cluster, a colleague's laptop, or even on paper while commuting. The power lies in your abstractions made code, not the tool used to write it down. Challenge yourself to text-editor-only projects from time to time.
+\textbf{No IDE:} A plain text editor like \py{nano}, \py{micro}, \py{vim}, or Notepad++ is perfectly serviceable. In fact, many scientists eventually work on remote supercomputers or cloud servers where graphical interfaces (like Spyder) aren't available. The ultimate IDE is your own mind. So, if you are comfortable editing plain text, you can work anywhere---on a powerful cluster, a colleague's laptop, or even on paper while commuting. The power lies in your abstractions made code, not the tool used to write it down. Challenge yourself to text-editor-only projects from time to time.
 
 \begin{note}
 VS Code is a generalist tool, whereas Spyder is a specialist. VS Code requires significant manual configuration to match Spyder's out-of-the-box scientific features. I recommend holding off on VS Code until you encounter a specific need that Spyder cannot fulfil.
