@@ -404,6 +404,16 @@ squares = [x ** 2 for x in range(10)]
 
 The syntax is: \py{[expression for item in sequence]}
 
+This also works for lists of lists, for instance a 4 by 4 matrix can be created as follows:
+
+\begin{lstlisting}[style=outputstyle]
+>>> Matrix = [[i*j for i in range(4)]for j in range(4)]
+>>> Matrix
+[[0, 0, 0, 0], [0, 1, 2, 3], [0, 2, 4, 6], [0, 3, 6, 9]]
+\end{listlisting}
+
+This is however easier to do using tools from the NumPy library as we will see in chapter 9.
+
 \subsection{Adding Conditions}
 
 Filter items with an \py{if} clause:
