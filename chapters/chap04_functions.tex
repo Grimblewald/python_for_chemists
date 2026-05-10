@@ -104,6 +104,10 @@ if calculate_molarity(11.7, 58.44, 1.0) > 0.1:
 A function without a \py{return} statement returns \py{None}. If you try to use the result, you'll get \py{None}---a common source of confusion for beginners.
 \end{note}
 
+\begin{tip}
+Taking the habit of explicitly writing \py{return} or \py{return None} at the end of such functions can help show future readers that the lack of return value is deliberate and, and becomes necessary if the ending is different depending on one or more conditions.
+\end{tip}
+
 \subsection{Multiple Return Values}
 
 Python functions can return multiple values using tuples:
@@ -344,6 +348,10 @@ Docstrings help others (and future you) understand your code. Python's \py{help(
 Write docstrings for any function that isn't immediately obvious. It takes a minute now and saves hours of confusion later.
 \end{tip}
 
+\begin{warning}
+Docstrings are meant to be understood by anyone running the code and willing to use the function. Therefore, its goal is not to describe exactly what happens in the function but rather to say what it returns (A list ? A number ? Which one ? maybe nothing ?) and what its parameters are.
+\end{warning}
+
 % ----------------------------------------------------------------------------
 \section{Scope: Where Variables Live}
 \label{sec:scope}
@@ -523,7 +531,10 @@ Let's build a set of functions for basic spectroscopy calculations:
 
 \begin{lstlisting}
 
-import math # load the math library, this gives us access to logarithms by name.
+from math import log10 # loads the logarithm function from the math library. 
+# If we wanted to use more functions from this library, it would 
+# be faster to write from math import * Here, * means everything. 
+# But it would be even faster to write import math
 
 def absorbance_to_transmittance(A):
     """Convert absorbance to percent transmittance."""
