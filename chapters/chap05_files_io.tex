@@ -19,6 +19,8 @@ content = file.read()
 file.close()
 \end{lstlisting}
 
+This applies to files in text format such as txt, but also csv, tsv, xyz, and many others. However, "text" documents generated from common editors in their default format (pdf, docx or even doc) will not be correctly read. If you don't know if a file is in a text format, you can simply open it with a plain-text editor such as Notepad: if most of it is characters you do not understand, it's not a text file.
+
 The second argument specifies the \emph{mode}:
 \begin{itemize}
     \item \py{"r"} --- Read (default). File must exist.
@@ -107,6 +109,48 @@ print(f"Read {len(measurements)} values")
 print(f"Average: {sum(measurements)/len(measurements):.2f}")
 \end{lstlisting}
 \end{labexample}
+
+In practice though, files are rarely that simple and most of them include multiple pieces of information on the same line. The \py{.split()} function instead of \py{.strip()} will also remove the newline character, but it will most importantly generate a list of strings of characters with each element of the list corresponding to a piece of the line in between spaces or tabs (which will also be stripped). This is useful for files with tab-separated values or if words need to be distinguished from numbers.
+
+It can also take a character as argument in order to separate along e.g. commas or semicolons, making it also useful for working with csv files
+
+\begin{labexample}
+Reading a less simple but more realistic data file:
+
+\begin{lstlisting}
+# File: measurement_with_metadata.txt
+# Intensity 23.4 Wavelength 570 Background reference BGref2026-001
+# Intensity 26.2 Wavelength 620 Background reference BGref2026-001
+
+measurements = []
+with open("measurements.txt", "r") as file:
+    for line in file:
+        line = line.split()           # remove whitespaces
+        if line:                      # skip empty lines
+            value = float(line[1])    # convert the intensity value to number
+            measurements.append(value)
+
+print(f"Read {len(measurements)} values")
+print(f"Average: {sum(measurements)/len(measurements):.2f}")
+\end{lstlisting}
+
+Reading an equivalent csv file:
+\begin{lstlisting}
+# File: measurement_with_metadata.csv
+# Intensity;23.4;Wavelength;570;Background reference;BGref2026-001
+# Intensity;26.2;Wavelength;620;Background reference;BGref2026-001
+
+measurements = []
+with open("measurements.csv", "r") as file:
+    for line in file:
+        line = line.split(";")        # remove whitespaces
+        if line:                      # skip empty lines
+            value = float(line[1])    # convert the intensity value to number
+            measurements.append(value)
+
+print(f"Read {len(measurements)} values")
+print(f"Average: {sum(measurements)/len(measurements):.2f}")
+\end{lstlisting}
 
 % ----------------------------------------------------------------------------
 \section{Writing Files}
@@ -199,6 +243,8 @@ wavelength,absorbance
 \end{lstlisting}
 
 \subsection{Reading CSV with the csv Module}
+
+As we saw, this can be done by treating it as a normal text file as well. However, the use of the csv module allows for some useful shortcuts.
 
 \begin{lstlisting}
 import csv
@@ -362,7 +408,7 @@ with open("old_data.txt", "r", encoding="latin-1") as file:
 \end{lstlisting}
 
 \begin{warning}
-If you get a \py{UnicodeDecodeError}, the file probably uses a different encoding than Python expects. Common alternatives to try: \py{"latin-1"}, \py{"cp1252"} (Windows), or \py{"iso-8859-1"}. This happens because computers don't store text, only numbers. Each character gets an index number and different encoding schems index differently, humans rarely agree on anything and so we have many encoding schemes in use. Thankfully, these days almost everyone agrees on the UTF encoding schema.
+If you get a \py{UnicodeDecodeError}, the file probably uses a different encoding than Python expects. Common alternatives to try: \py{"latin-1"}, \py{"ASCII"}, \py{"cp1252"} (Windows), or \py{"iso-8859-1"}. This happens because computers don't store text, only numbers. Each character gets an index number and different encoding schems index differently, humans rarely agree on anything and so we have many encoding schemes in use. Thankfully, these days almost everyone agrees on the UTF encoding schema.
 \end{warning}
 
 % ----------------------------------------------------------------------------

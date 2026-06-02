@@ -53,9 +53,17 @@ plt.savefig("sine_wave.png", dpi=300)  # 300 DPI for print quality
 plt.savefig("sine_wave.pdf")            # vector format for publications
 \end{lstlisting}
 
+\begin{note}
+\py{plt.savefig()} saves the figure in the same folder as the script. In the window opened by plt.show(), it is possible to choose another destination folder as well as the format and the name.
+\end{note}
+
 \begin{tip}
 Save as PDF or SVG for publications---these are vector formats that scale without pixelation. For more information, read up on the difference between raster and vector graphics.
 \end{tip}
+
+\begin{warning}
+Saving a figure overwrites the one with the same name in that folder (if it exists). Be careful when choosing how to name your figure files and especially if you copy-paste code within the same script.
+\end{warning}
 
 % ----------------------------------------------------------------------------
 \section{Line Plots}
@@ -292,6 +300,10 @@ axes[1].set_xlabel("Time (s)")
 plt.tight_layout()
 \end{lstlisting}
 
+\begin{note}
+Using the \py{plt.subplots()} command is not necassary: it would also work to repeat the \py{plt.plot()} command twice and include the same array as one of the axes, but this can increase the size of the code significantly if you have more than two graphs to plot. It makes debugging easier though.
+\end{note}
+
 % ----------------------------------------------------------------------------
 \section{The Object-Oriented Interface}
 \label{sec:oo-interface}
@@ -328,6 +340,11 @@ ax.set_ylim(-1, 1)
 ax.set_xticks([0, 2, 4, 6, 8, 10])
 ax.set_xticklabels(["0", "2", "4", "6", "8", "10 s"])
 \end{lstlisting}
+
+\begin{tip}
+Pyplot will automatically generate ticks for your axes. If you wish to have none, use the \py{set_xticks} command with an empty set.\n
+Similarly, having a \py{set_xticks{}} command for defining the values of the ticks but no \py{set_xticklabels()} command will set the labels to the values by default. Having no labels requires to explicitly provide a list of empty strings of characters using \py{set_xticklabels()}.
+\end{tip}
 
 \subsection{Log Scales}
 
@@ -430,6 +447,10 @@ plt.colorbar()
 \begin{center}
 \includegraphics[width=0.6\textwidth]{figures/chap10/contourf.pdf}
 \end{center}
+
+\begin{note}
+This colour scale feels intuitive especially for temperatures, but it yields a poor contrast if printed, especially in black & white, and is not really colorblind-friendly. That's why "viridis", a scale from purple to yellow, is preferred and used in the other examples of this section.
+\end{note}
 
 \subsection{Heatmaps}
 
