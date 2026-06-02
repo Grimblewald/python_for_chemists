@@ -1,15 +1,13 @@
 # TODO
-- [ ] Continue improving intro section / getting started. Awaiting feedback for draft version 3 (see releases for this verison)
 - [ ] Improve layout (low prio but needs doing before first real release)
    - [ ] Fix how admonition boxes break
    - [ ] Fix how admonition boxes float
 - [ ] add quizes to the end of chapters to make use of new quiz tool
 - [ ] check all admonitions still belong to correct categories
 - [ ] make sure all concepts introduced are shown incorporated in a lab example presented in the same chapter as they were introduced
-- [ ] Continue looking for verbose chunks to make more concise
-- [ ] Keep polishing to align better with proposed contribution values
-- [ ] remove hardcoded python from text, into python files that are inserted to text via \input, this way we can test scripts and outputs, among other benefits.
-- [ ] fix broken figures (e.g. some labels are floating outside of zone etc. hardly fit for the publicaiton figure readyness this book aims to teach.
+- [ ] Update to align older sections with proposed contribution values
+- [ ] remove hardcoded python from text. Instead use python files that are inserted to text via \input.
+- [ ] fix broken figures (e.g. some labels are floating outside of zone) hardly fit for the publicaiton figure readyness this book aims to demonstrate.
 
 # Python and Computational Thinking: A Crash Course for Scientists
 
@@ -201,7 +199,13 @@ Inline code commands:
 This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
 
 ## Author
-Frithjof Herb
+Orignially authored by Frithjof Herb, with the intention of making it a first-stop resource for the borader chemistry community. Check out the [contributors page](https://github.com/Grimblewald/python_for_chemists/graphs/contributors?all=1) for a list of all who've helped make this book what it is today.
+
+## Special Mentions
+Some folks gave feedback early on in the writing process outside of github. These people also deserve a mention for keeping motivation going early on in the project's life.
+
+**full list being compiled for V1 release along with prefered reference structure** but interim - thank you to:
+- Olivia Dickinson for a thorough early review, making significant contributions to how approachable the document is
 
 # Generative AI statment
 
